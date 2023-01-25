@@ -1,0 +1,16 @@
+{
+  "name": "chrome-tab-management-extension",
+  "manifest_version": 3,
+  "version": "0.1.0",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+  "minimum_chrome_version": "88"
+}

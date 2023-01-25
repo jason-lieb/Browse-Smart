@@ -1,0 +1,64 @@
+chrome.runtime.onInstalled.addListener(() => chrome.tabs.query({ "currentWindow": true }, init))
+
+function init(rawData) {
+  let { windowIDs, tabs } = getAllData(rawData);
+  windowIDs.forEach(createHomeTab);
+}
+
+function getAllData(rawData) {
+  const tabs = [];
+  let windowIDs = new Set();
+  if (chrome.runtime.lastError) {
+    console.error(chrome.runtime.lastError);
+  } else {
+    for (const tab of rawData) {
+      windowIDs.add(tab.windowId);
+      tabs.push({
+        title: tab.title,
+        active: tab.active,
+        groupID: tab.groupId,
+        windowID: tab.windowId,
+        index: tab.index,
+        url: tab.url,
+        favIconURL: tab.favIconUrl
+      })
+    }
+    windowIDs = Array.from(windowIDs);
+    return { windowIDs, tabs }
+  }
+}
+
+function createHomeTab(windowID) { // Abstract to Only Create One Home Tag?
+  chrome.tabs.create({
+    "windowId": windowID,
+    // "active": true,
+    // "pinned": true,
+    "index": 0,
+    "url": './home.html'
+  });
+}
+
+
+
+
+
+
+// Classes for windows, and tabs
+
+// List of window IDs to create pinned tabs
+// Create background.html? Template for pinned tabs
+
+
+
+
+///// Example of Chrome Local Storage from ChatGPT
+
+// // Store data
+// chrome.storage.local.set({'myKey': 'myValue'}, function() {
+//   console.log('Data stored');
+// });
+
+// // Retrieve data
+// chrome.storage.local.get(['myKey'], function(result) {
+//   console.log(result.myKey); // Output: 'myValue'
+// });

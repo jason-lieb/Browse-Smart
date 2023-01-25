@@ -1,1 +1,1 @@
-# chrome-tab-management-extension
+# Chrome Tab Management Extension

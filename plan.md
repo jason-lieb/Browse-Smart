@@ -28,6 +28,8 @@ Different Color for Different Workspaces
 
 Additional Functionality:
 
+Support for Different Desks?
+
 Light Mode / Themes
 
 Right click add to ~ Tab Manager Name ~

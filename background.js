@@ -28,7 +28,7 @@ function getAllData(rawData) {
   }
 }
 
-function createHomeTab(windowID) { // Abstract to Only Create One Home Tag?
+function createHomeTab(windowID) {
   chrome.tabs.create({
     "windowId": windowID,
     // "active": true,
@@ -43,11 +43,15 @@ function createHomeTab(windowID) { // Abstract to Only Create One Home Tag?
 
 
 
-// Classes for windows, and tabs
-
+// Classes for windows and tabs?
 // List of window IDs to create pinned tabs
-// Create background.html? Template for pinned tabs
 
+// Svelte components
+//// Nav bar
+//// Filters (Current Window and All / Workspaces and Tags)
+//// Main Body
+//// Windows
+//// Tabs -> Group Support
 
 
 

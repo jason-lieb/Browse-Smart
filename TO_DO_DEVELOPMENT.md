@@ -1,3 +1,12 @@
+- Public folder vs src/assets folder?
+- Style in App.svelte vs app.css
+- Use Pico.css CDN to update to latest changes with simple rebuild?
+
+Background.js:
+- Initial set-up
+- Continually update? -> Alternative is to update when one of the pages becomes active again
+
+
 Basic Functionality:
 
 Workspaces on Left
@@ -27,6 +36,8 @@ Different Color for Different Workspaces
 
 
 Additional Functionality:
+
+Keyboard Shortcut Event Listeners
 
 Support for Different Desks?
 

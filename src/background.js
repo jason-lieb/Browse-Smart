@@ -34,7 +34,7 @@ function createHomeTab(windowID) {
     // "active": true,
     // "pinned": true,
     "index": 0,
-    "url": './home.html'
+    // "url": './home.html'
   });
 }
 

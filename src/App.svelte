@@ -2,68 +2,44 @@
   import Nav from './components/Nav.svelte'
   import Body from './components/Body.svelte'
 
-  let filters = ['Current Window', 'All']
-  let windows = [[
-    {
-      title: 'Tab 1',
-      url: 'www.taburl.com',
-      favIcon: 'https://developer.chrome.com/images/meta/favicon-32x32.png'
-    },
-    {
-      title: 'Tab 2',
-      url: 'www.taburl.com',
-      favIcon: 'https://developer.chrome.com/images/meta/favicon-32x32.png'
-    }
-  ]]; // Get example data
+  let filters = ['Current Window', 'All', 'Sleeping']
+  let selectedFilter = 'Current Window';
+  let windows = [];
 
-  // chrome.tabs.query({ "currentWindow": true }, init)
-
-  // function init(rawData) {
-  //   let { windowIDs, tabs } = getAllData(rawData);
-  //   windowIDs.forEach(createHomeTab);
-  // }
-
-  // function getAllData(rawData) {
-  //   const tabs = [];
-  //   let windowIDs = new Set();
-  //   if (chrome.runtime.lastError) {
-  //     console.error(chrome.runtime.lastError);
-  //   } else {
-  //     for (const tab of rawData) {
-  //       windowIDs.add(tab.windowId);
-  //       tabs.push({
-  //         title: tab.title,
-  //         active: tab.active,
-  //         groupID: tab.groupId,
-  //         windowID: tab.windowId,
-  //         index: tab.index,
-  //         url: tab.url,
-  //         favIconURL: tab.favIconUrl
-  //       })
-  //     }
-  //     windowIDs = Array.from(windowIDs);
-  //     return { windowIDs, tabs }
+  // document.addEventListener('visibilitychange', () => {
+  //   if (!document.hidden) {
+  //     // Reload
+  //     //// Send message to background to update data
+  //     //// Read message from background
+  //     //// Update DOM
   //   }
-  // }
+  // })
 
-  // function createHomeTab(windowID) {
-  //   chrome.tabs.create({
-  //     "windowId": windowID,
-  //     // "pinned": true,
-  //     "index": 0,
-  //     // "url": './home.html'
-  //   });
-  // }
+  // Send message to background asking for window ID when created
+
+  // @ts-ignore
+  chrome.runtime.onMessage.addListener((message) => readData(message));
+
+  function readData(ID) {
+    // @ts-ignore
+    chrome.storage.local.get(ID, (data) => {
+      // @ts-ignore
+      windows = [JSON.parse(data[Object.keys(data)]).slice(1)];
+    });
+  }
+
 </script>
 
 <main>
-  <Nav {filters}/>
+  <Nav {filters} {selectedFilter}/>
   <Body {windows}/>
 </main>
 
 <style>
   main {
     height: 100vh;
+    max-width: 100vw;
+    overflow-x: hidden;
     display: grid;
     grid-template-columns: 15rem 1fr;
   }

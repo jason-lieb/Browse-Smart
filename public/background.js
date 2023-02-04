@@ -1,11 +1,10 @@
-// bug: opens two home tabs on active window
-
 chrome.runtime.onInstalled.addListener(init);
 
 let global; // want this to be available globally?
 
 async function init() {
   let rawData = await chrome.tabs.query({});
+  rawData = checkForFileTab(rawData);
   let windowIDs = getWindowIDs(rawData);
   windowIDs.forEach(createHomeTab); // Conditional to not create a new tab if one is already there? Reload? Send new message?
   // separate below into separate function for reuse?
@@ -81,7 +80,24 @@ function readData() {
 
 function sendMessage(key) {
   let tabID = global[key][0].id;
-  setTimeout(chrome.tabs.sendMessage, 1000, tabID, key);
+  if (global[key].length === 1) {
+    console.log(global[key])
+    if (global[key][0].url === 'chrome://file-manager/') {
+      return;
+    }
+  }
+  setTimeout(chrome.tabs.sendMessage, 500, tabID, key);
+}
+
+function checkForFileTab(rawData) {
+  let toRemove = [];
+  rawData.forEach((tab, i) => {
+    if (tab.url === 'chrome://file-manager/') toRemove.unshift(i)
+  })
+  toRemove.forEach((i) => {
+    rawData = [...rawData.slice(0, i), ...rawData.slice(i+1)];
+  })
+  return rawData;
 }
 
 class Tab {

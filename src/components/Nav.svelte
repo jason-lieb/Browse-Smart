@@ -1,12 +1,11 @@
 <script>
   import Filter from './Filter.svelte'
   export let filters
-  export let selectedFilter
 </script>
 <div class="container">
-  <h1>Tab Simple, Tab Better</h1>
+  <h1>Browser Hero</h1>
   {#each filters as filter}
-    <Filter {filter} {selectedFilter} />
+    <Filter {filter} />
   {/each}
 </div>
 
@@ -17,7 +16,8 @@
   }
   h1 {
     text-align: center;
-    margin: 2rem 0;
+    margin: 1rem 0;
+    padding: 1rem;
     color: rgb(26, 179, 230);
     font-family: lobster, system-ui;
     font-size: 2.5rem;
@@ -25,5 +25,10 @@
   div {
     border-right: solid 1px rgba(115, 130, 140, 0.2);
     background: hsl(206, 29%, 11%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 15rem;
+    height: 100vh;
   }
 </style>

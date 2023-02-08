@@ -1,28 +1,25 @@
 chrome.runtime.onInstalled.addListener(init);
 
-let global; // want this to be available globally?
-
 async function init() {
-  let rawData = await chrome.tabs.query({});
-  rawData = checkForFileTab(rawData);
-  let windowIDs = getWindowIDs(rawData);
-  windowIDs.forEach(createHomeTab); // Conditional to not create a new tab if one is already there? Reload? Send new message?
-  // separate below into separate function for reuse?
-  let status = await updateData();
-  console.log(global);
-  Object.keys(global).forEach((key) => sendMessage(key));
-  // readData();
-  // send message
+  // chrome.storage.local.clear(); /////
+  try {
+    const rawData = await chrome.windows.getAll({ 'windowTypes': ['normal'] });
+    const windowIDs = createWindowIDs(rawData);
+    windowIDs.forEach(createHomeTab); // Add in if (url !== '') -> check for already created home tabs [Pending URL...?]
+
+    const homeTabIDs = await updateData();
+    windowIDs.forEach((windowID, i) => sendMessage(String(windowID), homeTabIDs[i]));
+  } catch (err) {
+    console.error(err);
+  }
 }
 
-function getWindowIDs(rawData) {
-  if (chrome.runtime.lastError) {
-    console.error(chrome.runtime.lastError);
-  } else {
-    let windowIDs = new Set();
-    rawData.forEach((tab) => windowIDs.add(tab.windowId));
-    return windowIDs;
-  }
+/////////////// Window IDs
+
+function createWindowIDs(rawData) {
+  let windowIDs = new Set();
+  rawData.forEach((window) => windowIDs.add(window.id));
+  return Array.from(windowIDs);
 }
 
 function createHomeTab(windowID) {
@@ -35,77 +32,150 @@ function createHomeTab(windowID) {
   });
 }
 
-async function updateData() {
-  let rawData = await chrome.tabs.query({});
-  global = parseData(rawData);
-  setData(global);
-  return true;
-}
+///////////////////////// Data
 
-function parseData(rawData) {
-  if (chrome.runtime.lastError) {
-    console.error(chrome.runtime.lastError);
-  } else {
-    const global = {};
-    rawData.forEach((tab) => { // Switch from object to map for hash table?
-      if (!global[String(tab.windowId)]) global[String(tab.windowId)] = [];
-      global[String(tab.windowId)][tab.index] = new Tab(tab.id, tab.title, tab.url, tab.favIconUrl, tab.groupId);
-    })
-    return global;
+async function updateData() {
+  try {
+    let rawWindows = await chrome.windows.getAll({ 'populate': true, 'windowTypes': ['normal'] });
+    let rawGroups = await chrome.tabGroups.query({});
+    homeTabIDs = parseWindows(rawWindows); //[windows, tabs, homeTabIDs]
+    parseGroups(rawGroups); //groups =
+    // storeData(global); // Not needed anymore?
+    return homeTabIDs;
+  } catch (err) {
+    console.error(err)
   }
 }
 
-function setData(global) {
-  let keys = Object.keys(global);
-  keys.forEach((key) => {
-    chrome.storage.local.set({[key]: JSON.stringify(global[key])}, () => {
+function parseWindows(rawWindows) {
+  // const windows = []; // For testing
+  // const tabs = []; // For testing
+  const homeTabIDs = [];
+  rawWindows.forEach((window) => {
+    let tabsInWindow = [];
+    let groupsInWindow = new Set();
+    window.tabs.forEach((tab) => {
+      tabsInWindow.push(tab.id);
+      if (tab.groupId !== -1) groupsInWindow.add(tab.groupId);
+      let tabContent = { title: tab.title, url: tab.url, favIcon: tab.favIconUrl, groupID: tab.groupId };
+      console.log(tabContent)
+      chrome.storage.local.set({[String(tab.id)]: JSON.stringify(tabContent)}, () => {
+        let error = chrome.runtime.lastError;
+        if (error) {
+          console.error(error)
+        }
+      })
+      // tabs.push(String(tab.id)); // For testing
+      // tabs.set(tab.id, { title: tab.title, url: tab.url, favIcon: tab.favIconUrl, groupID: tab.groupId });
+    });
+    let windowContent = { tabIDs: tabsInWindow, groupIDs: Array.from(groupsInWindow) };
+    homeTabIDs.push(tabsInWindow[0]);
+    chrome.storage.local.set({[String(window.id)]: JSON.stringify(windowContent)}, () => {
       let error = chrome.runtime.lastError;
       if (error) {
         console.error(error)
       }
     })
+    // windows.push(String(window.id)); // For testing
+    // windows.set(window.id, { tabIDs: tabsInWindow, groupIDs: Array.from(groupsInWindow) });
   })
+  return homeTabIDs; //[windows, tabs, homeTabIDs];
 }
 
-function readData() {
-  let windowIDs = Object.keys(global);
-  windowIDs.forEach((ID) => {
-    chrome.storage.local.get(ID, (data) => {
-      // console.log(Object.keys(data));
-      // console.log(data);
-      console.log(JSON.parse(data[Object.keys(data)]))
-    });
+function parseGroups(rawGroups) {
+  // const groups = []; // For testing
+  rawGroups.forEach((group) => {
+    let groupContent = { title: group.title, color: group.color };
+    chrome.storage.local.set({[String(group.id)]: JSON.stringify(groupContent)}, () => {
+      let error = chrome.runtime.lastError;
+      if (error) {
+        console.error(error)
+      }
+    })
+    // groups.push(String(group.id)); // For testing
+    // groups.set(group.id, { title: group.title, color: group.color })
   })
+  // return groups;
 }
 
-function sendMessage(key) {
-  let tabID = global[key][0].id;
-  if (global[key].length === 1) {
-    console.log(global[key])
-    if (global[key][0].url === 'chrome://file-manager/') {
-      return;
-    }
-  }
-  setTimeout(chrome.tabs.sendMessage, 500, tabID, key);
+
+
+
+
+
+function sendMessage(windowID, tabID) {
+  setTimeout(chrome.tabs.sendMessage, 500, tabID, windowID);
 }
 
-function checkForFileTab(rawData) {
-  let toRemove = [];
-  rawData.forEach((tab, i) => {
-    if (tab.url === 'chrome://file-manager/') toRemove.unshift(i)
-  })
-  toRemove.forEach((i) => {
-    rawData = [...rawData.slice(0, i), ...rawData.slice(i+1)];
-  })
-  return rawData;
-}
+// function readData(IDs) {
+//   IDs.forEach((ID) => {
+//     chrome.storage.local.get(ID, (data) => {
+//       console.log(JSON.parse(data[Object.keys(data)]))
+//     });
+//   })
+// }
 
-class Tab {
-  constructor(id, title, url, favIcon, groupID) {
-    this.id = id;
-    this.title = title;
-    this.url = url;
-    this.favIcon = favIcon;
-    this.groupID = groupID;
-  }
-}
+
+
+
+// let rawData = await chrome.tabs.query({});
+
+// parse data
+// const global = {};
+// rawData.forEach((tab) => { // Switch from object to map for hash table?
+//   if (!global[String(tab.windowId)]) global[String(tab.windowId)] = [];
+//   global[String(tab.windowId)][tab.index] = new Tab(tab.id, tab.title, tab.url, tab.favIconUrl, tab.groupId);
+// })
+
+// function storeData(global) {
+//   let keys = Object.keys(global);
+//   keys.forEach((key) => {
+//     chrome.storage.local.set({[key]: JSON.stringify(global[key])}, () => {
+//       let error = chrome.runtime.lastError;
+//       if (error) {
+//         console.error(error)
+//       }
+//     })
+//   })
+// }
+
+// class Tab {
+//   constructor(id, title, url, favIcon, groupID) {
+//     this.id = id;
+//     this.title = title;
+//     this.url = url;
+//     this.favIcon = favIcon;
+//     this.groupID = groupID;
+//   }
+// }
+
+// class Window {
+//   constructor(id, tabIDs, groupIDs) {
+//     this.id = id;
+//     this.tabs = tabIDs;
+//     this.groupIDs = groupIDs;
+//   }
+// }
+
+// class Group {
+//   constructor(id, title, color, tabIDs) {
+//     this.id = id;
+//     this.title = title;
+//     this.color = color;
+//     this.tabIDs = tabIDs;
+//   }
+// }
+
+// let tab = new Tab(tab.id, tab.title, tab.url, tab.favIconUrl, tab.groupId);
+// let newWindow = new Window(id, tabsInWindow, tabsInWindow);
+
+// function checkForFileTab(rawData) {
+//   let toRemove = [];
+//   rawData.forEach((tab, i) => {
+//     if (tab.url === 'chrome://file-manager/') toRemove.unshift(i)
+//   })
+//   toRemove.forEach((i) => {
+//     rawData = [...rawData.slice(0, i), ...rawData.slice(i+1)];
+//   })
+//   return rawData;
+// }

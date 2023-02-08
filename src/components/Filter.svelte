@@ -1,15 +1,17 @@
 <script>
   export let filter
-  export let selectedFilter
+  // export let selectedFilter
+
+  import { selectedFilter } from '../stores.js'
 
   const selectFilter = (e) => {
-    if (filter !== selectedFilter) {
-      selectedFilter = filter;
+    if (filter !== $selectedFilter) {
+      selectedFilter.set(filter);
     }
   }
 </script>
 
-{#if filter === selectedFilter}
+{#if filter === $selectedFilter}
 <button class="selected">{filter}</button>
 {:else}
 <button class="outline" on:click={selectFilter}>{filter}</button>

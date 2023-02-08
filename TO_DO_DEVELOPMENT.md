@@ -1,13 +1,37 @@
-Unselect Filters
+MVP
+
+Group colors are correct -> how to pass data around
+Background.js automatically creates new home tabs
+All windows have 1 and only 1 home tab
+Get All window filter working
+Decide on buttons for tabs and windows and selected tabs
+How to sleep tabs and how to store sleeping tabs
+FavIcon for Tab Manager -> Home (light blue color)
+
+
+
+
+
+
+
+Groups -> Only pass color to tabs, No accordion or group header
+
+
+Memory, Events, and Messages
+Background.js -> If a window only has a home tab, close window
+
 
 Other runtime events
 
-Make filters work - Different Color When Selected
-FavIcon for Tab Manager
+Aesthetics
+
+Add Accordion Drop Down to Left of Input in Window Header
+Add Group Header
 Get ellipses when text overflows
 Tab Icon for Chrome Settings / Extensions / etc. -> Loop through all tabs and add to ones with url Chrome://
 Adds Colored line for groups
 Different Color for Different Workspaces
+Gap on right side of tab disappears when shrunk
 
 
 Pop-up
@@ -50,6 +74,8 @@ Expand storage with unlimited storage permission?
 
 
 Possible Future Additions:
+
+Tabs from other windows but across browsers
 
 - Use Pico.css CDN to update to latest changes with simple rebuild?
 

@@ -1,9 +1,13 @@
 <script>
-
+  export let windowIndex
 </script>
 
 <div class="header">
-  <input type="text" placeholder="Window 1">
+  {#if windowIndex === -1}
+    <input type="text" placeholder="Current Window" readonly>
+  {:else}
+    <input type="text" placeholder="Window {windowIndex + 1}" readonly>
+  {/if}
 </div>
 
 <style>

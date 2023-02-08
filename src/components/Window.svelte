@@ -1,13 +1,14 @@
 <script>
   import Tab from './Tab.svelte'
   import WindowHeader from './WindowHeader.svelte'
-  export let tabs
+  export let window
+  export let windowIndex = -1
 </script>
 
 <div class="main">
   <div class="window container">
-    <WindowHeader />
-    {#each tabs as tab}
+    <WindowHeader {windowIndex} />
+    {#each window as tab}
     <Tab {tab} />
     {/each}
   </div>

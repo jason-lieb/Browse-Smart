@@ -1,10 +1,21 @@
 <script>
   import Nav from './components/Nav.svelte'
   import Body from './components/Body.svelte'
+  import { selectedFilter } from './stores.js'
+
 
   let filters = ['Current Window', 'All', 'Sleeping']
-  let selectedFilter = 'Current Window';
-  let windows = [];
+  let windows = {
+    currentWindow: [],
+    allWindows: []
+  };
+  let currentWindow;
+
+  // function testConsole() {
+  //   console.log(selectedFilter);
+  // }
+  // testConsole();
+  // setTimeout(testConsole, 8000);
 
   // document.addEventListener('visibilitychange', () => {
   //   if (!document.hidden) {
@@ -16,22 +27,56 @@
   // })
 
   // Send message to background asking for window ID when created
-
   // @ts-ignore
-  chrome.runtime.onMessage.addListener((message) => readData(message));
+  chrome.runtime.onMessage.addListener(readWindow);
 
-  function readData(ID) {
+
+  function readWindow(id) {
+    // If id is not an array?
+
     // @ts-ignore
-    chrome.storage.local.get(ID, (data) => {
-      // @ts-ignore
-      windows = [JSON.parse(data[Object.keys(data)]).slice(1)];
+    chrome.storage.local.get(id, async (data) => {
+      // Get Tab IDs and Group IDs
+      let window = JSON.parse(data[id]);
+      // Build windows for current window
+      windows.currentWindow = await buildWindow(window.tabIDs.slice(1));
+      console.log(windows.currentWindow)
+
+      window.groupIDs.forEach((id) => readGroup(String(id))); // switch to build group and output group array / object / map?
     });
+  }
+
+  async function buildWindow(ids) {
+    let buildWindow = [];
+    for (let id of ids) {
+      // @ts-ignore
+      let output = await chrome.storage.local.get(String(id));
+      buildWindow.push(JSON.parse(output[id]))
+    }
+    return buildWindow
+  }
+
+  // function readTab(id) {
+  //   // @ts-ignore
+  //   chrome.storage.local.get(id, (data) => {
+  //     // console.log(JSON.parse(data[id]))
+  //     return JSON.parse(data[id]);
+  //   })
+  // }
+
+  async function readGroup(id) {
+    // console.log('id', id);
+    // @ts-ignore
+    let data = await chrome.storage.local.get(id);
+    // console.log('data', data);
+    let group = JSON.parse(data[id]);
+    // console.log('group', group);
   }
 
 </script>
 
 <main>
-  <Nav {filters} {selectedFilter}/>
+  <Nav {filters} />
   <Body {windows}/>
 </main>
 

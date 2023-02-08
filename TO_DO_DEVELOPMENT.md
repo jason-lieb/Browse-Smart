@@ -1,12 +1,14 @@
 MVP
 
+Uncomment group query, parsing, etc.
+
+Error handling for when groups aren't functioning properly
 Group colors are correct -> how to pass data around
 Background.js automatically creates new home tabs
 All windows have 1 and only 1 home tab
 Get All window filter working
 Decide on buttons for tabs and windows and selected tabs
 How to sleep tabs and how to store sleeping tabs
-FavIcon for Tab Manager -> Home (light blue color)
 
 
 

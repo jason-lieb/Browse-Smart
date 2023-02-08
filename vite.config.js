@@ -10,7 +10,10 @@ export default defineConfig({
     cp({
       targets: [
         { src: './manifest.json', dest: './public' },
-        { src: './background.js', dest: './public' }
+        { src: './background.js', dest: './public' },
+        { src: './src/assets/icons/icon16.png', dest: './public/assets/icons'},
+        { src: './src/assets/icons/icon48.png', dest: './public/assets/icons'},
+        { src: './src/assets/icons/icon128.png', dest: './public/assets/icons'}
       ]
     })
   ],

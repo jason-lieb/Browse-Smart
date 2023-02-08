@@ -42,7 +42,7 @@
       windows.currentWindow = await buildWindow(window.tabIDs.slice(1));
       console.log(windows.currentWindow)
 
-      window.groupIDs.forEach((id) => readGroup(String(id))); // switch to build group and output group array / object / map?
+      // window.groupIDs.forEach((id) => readGroup(String(id))); // switch to build group and output group array / object / map?
     });
   }
 

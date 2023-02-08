@@ -37,10 +37,9 @@ function createHomeTab(windowID) {
 async function updateData() {
   try {
     let rawWindows = await chrome.windows.getAll({ 'populate': true, 'windowTypes': ['normal'] });
-    let rawGroups = await chrome.tabGroups.query({});
+    // let rawGroups = await chrome.tabGroups.query({});
     homeTabIDs = parseWindows(rawWindows); //[windows, tabs, homeTabIDs]
-    parseGroups(rawGroups); //groups =
-    // storeData(global); // Not needed anymore?
+    // parseGroups(rawGroups);
     return homeTabIDs;
   } catch (err) {
     console.error(err)
@@ -126,18 +125,6 @@ function sendMessage(windowID, tabID) {
 //   if (!global[String(tab.windowId)]) global[String(tab.windowId)] = [];
 //   global[String(tab.windowId)][tab.index] = new Tab(tab.id, tab.title, tab.url, tab.favIconUrl, tab.groupId);
 // })
-
-// function storeData(global) {
-//   let keys = Object.keys(global);
-//   keys.forEach((key) => {
-//     chrome.storage.local.set({[key]: JSON.stringify(global[key])}, () => {
-//       let error = chrome.runtime.lastError;
-//       if (error) {
-//         console.error(error)
-//       }
-//     })
-//   })
-// }
 
 // class Tab {
 //   constructor(id, title, url, favIcon, groupID) {

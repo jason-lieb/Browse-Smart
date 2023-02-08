@@ -1,15 +1,23 @@
 <script>
   import Tab from './Tab.svelte'
   import WindowHeader from './WindowHeader.svelte'
+  import GroupHeader from './GroupHeader.svelte'
   export let window
   export let windowIndex = -1
+  export let groups
 </script>
 
 <div class="main">
   <div class="window container">
     <WindowHeader {windowIndex} />
-    {#each window as tab}
-    <Tab {tab} />
+    {#each window as tab, index}
+      {#if tab.groupID !== -1 && window[index - 1].groupID !== tab.groupID }
+        <GroupHeader group={groups[tab.groupID]}/>
+      {:else if tab.groupID !== -1}
+        <Tab {tab} group={groups[tab.groupID]}/>
+      {:else}
+        <Tab {tab}/>
+      {/if}
     {/each}
   </div>
 </div>

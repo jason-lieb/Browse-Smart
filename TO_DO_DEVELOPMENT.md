@@ -1,8 +1,37 @@
 MVP
 
+Data Structures
+windowIDs
+- list of windows
+windows
+- stored individually based on windowID
+- contains tabIDs and groupIDs
+groups
+- stored individually based on groupID -> store as a single object?
+- contains color, title -> add collapsed
+tabs
+- stored individually based on tabID
+- contains url, favIcon, title, groupID
+
+-- add sleeping
+-- add saved window name
+-- add custom filters
+
+How to visualize custom filters
+- Vertical bars to left of buttons?
+- More vertical bars to left of tabs
+
+
 Uncomment group query, parsing, etc.
 
 Error handling for when groups aren't functioning properly
+Erroring when task manager is open?
+
+Sleep tabs within a window (show sleeping tabs below awake tabs / don't keep index of sleeping tabs)
+Sleep entire windows / separate sleeping tabs in window to separate window
+
+Awake Filter?
+
 Group colors are correct -> how to pass data around
 Background.js automatically creates new home tabs
 All windows have 1 and only 1 home tab

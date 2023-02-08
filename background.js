@@ -19,6 +19,12 @@ async function init() {
 function createWindowIDs(rawData) {
   let windowIDs = new Set();
   rawData.forEach((window) => windowIDs.add(window.id));
+  chrome.storage.local.set({windowIDs: JSON.stringify(Array.from(windowIDs))}, () => {
+    let error = chrome.runtime.lastError;
+    if (error) {
+      console.error(error)
+    }
+  })
   return Array.from(windowIDs);
 }
 
@@ -37,9 +43,9 @@ function createHomeTab(windowID) {
 async function updateData() {
   try {
     let rawWindows = await chrome.windows.getAll({ 'populate': true, 'windowTypes': ['normal'] });
-    // let rawGroups = await chrome.tabGroups.query({});
+    let rawGroups = await chrome.tabGroups.query({});
     homeTabIDs = parseWindows(rawWindows); //[windows, tabs, homeTabIDs]
-    // parseGroups(rawGroups);
+    parseGroups(rawGroups);
     return homeTabIDs;
   } catch (err) {
     console.error(err)
@@ -57,7 +63,7 @@ function parseWindows(rawWindows) {
       tabsInWindow.push(tab.id);
       if (tab.groupId !== -1) groupsInWindow.add(tab.groupId);
       let tabContent = { title: tab.title, url: tab.url, favIcon: tab.favIconUrl, groupID: tab.groupId };
-      console.log(tabContent)
+      // console.log(tabContent) ///////////
       chrome.storage.local.set({[String(tab.id)]: JSON.stringify(tabContent)}, () => {
         let error = chrome.runtime.lastError;
         if (error) {
@@ -82,17 +88,25 @@ function parseWindows(rawWindows) {
 }
 
 function parseGroups(rawGroups) {
-  // const groups = []; // For testing
+  const groups = {}; // For testing
   rawGroups.forEach((group) => {
-    let groupContent = { title: group.title, color: group.color };
-    chrome.storage.local.set({[String(group.id)]: JSON.stringify(groupContent)}, () => {
-      let error = chrome.runtime.lastError;
-      if (error) {
-        console.error(error)
-      }
-    })
+    let groupID = group.id;
+    let groupContent = { title: group.title, color: group.color, collapsed: group.collapsed };
+    groups[groupID] = groupContent;
+    // chrome.storage.local.set({[String(group.id)]: JSON.stringify(groupContent)}, () => {
+    //   let error = chrome.runtime.lastError;
+    //   if (error) {
+    //     console.error(error)
+    //   }
+    // })
     // groups.push(String(group.id)); // For testing
     // groups.set(group.id, { title: group.title, color: group.color })
+  })
+  chrome.storage.local.set({groups: JSON.stringify(groups)}, () => {
+    let error = chrome.runtime.lastError;
+    if (error) {
+      console.error(error)
+    }
   })
   // return groups;
 }

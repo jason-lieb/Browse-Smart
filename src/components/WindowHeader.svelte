@@ -2,7 +2,7 @@
   export let windowIndex
 </script>
 
-<div class="header">
+<div>
   {#if windowIndex === -1}
     <input type="text" placeholder="Current Window" readonly>
   {:else}
@@ -11,8 +11,7 @@
 </div>
 
 <style>
-  .header {
-    background: hsl(206, 29%, 11%);
+  div {
     grid-column: span 2;
   }
   input {

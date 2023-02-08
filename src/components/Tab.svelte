@@ -1,8 +1,9 @@
 <script>
   import Delete from './Delete.svelte'
   export let tab
+  export let group = { color: 'background' }
 </script>
-<div class="group"></div>
+<div class="group {group.color}"></div>
 <div class="flex">
   <div class="tab">
     {#if tab.favIcon}
@@ -22,7 +23,6 @@
   .group {
     height: 4rem;
     width: .25rem;
-    background: red;
   }
   .flex {
     display: flex;
@@ -37,7 +37,6 @@
     display: flex;
     align-items: center;
   }
-
   .stackedText {
     max-width: calc(100vw - 25rem);
     overflow: hidden;
@@ -60,5 +59,35 @@
     white-space: nowrap;
     font-size: 100%;
     /* text-overflow: ellipsis; */
+  }
+  .background {
+    background: hsl(206, 29%, 11%);
+  }
+  .grey {
+    background: grey;
+  }
+  .blue {
+    background: blue;
+  }
+  .red {
+    background: red;
+  }
+  .yellow {
+    background: yellow;
+  }
+  .green {
+    background: green;
+  }
+  .pink {
+    background: pink;
+  }
+  .purple {
+    background: purple;
+  }
+  .cyan {
+    background: cyan;
+  }
+  .orange {
+    background: orange;
   }
 </style>

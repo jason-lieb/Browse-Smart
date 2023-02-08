@@ -1,7 +1,7 @@
 <script>
   import Nav from './components/Nav.svelte'
   import Body from './components/Body.svelte'
-  import { selectedFilter } from './stores.js'
+  // import { selectedFilter } from './stores.js'
 
 
   let filters = ['Current Window', 'All', 'Sleeping']
@@ -9,7 +9,7 @@
     currentWindow: [],
     allWindows: []
   };
-  let currentWindow;
+  let groups;
 
   // function testConsole() {
   //   console.log(selectedFilter);
@@ -28,22 +28,52 @@
 
   // Send message to background asking for window ID when created
   // @ts-ignore
-  chrome.runtime.onMessage.addListener(readWindow);
+  chrome.runtime.onMessage.addListener(loadCurrentWindow);
 
+  setTimeout(loadAllWindows, 2000);
+  setTimeout(loadAllGroups, 0);
 
-  function readWindow(id) {
-    // If id is not an array?
-
+  async function loadAllWindows() {
     // @ts-ignore
-    chrome.storage.local.get(id, async (data) => {
-      // Get Tab IDs and Group IDs
-      let window = JSON.parse(data[id]);
-      // Build windows for current window
-      windows.currentWindow = await buildWindow(window.tabIDs.slice(1));
-      console.log(windows.currentWindow)
+    let windowIDs = await chrome.storage.local.get('windowIDs');
+    windowIDs = JSON.parse(windowIDs['windowIDs'])
+    let allWindows = [];
+    for (let id of windowIDs) {
+      let newWindow = await readWindow(String(id));
+      allWindows.push(newWindow);
+    }
+    windows.allWindows = allWindows;
+  }
 
-      // window.groupIDs.forEach((id) => readGroup(String(id))); // switch to build group and output group array / object / map?
-    });
+  async function loadAllGroups() {
+    console.log('load all groups')
+    // @ts-ignore
+    let loadGroups = await chrome.storage.local.get('groups');
+    loadGroups = JSON.parse(loadGroups['groups']);
+    groups = loadGroups;
+    console.log(groups);
+  }
+
+  async function loadCurrentWindow(id) {
+    let buildWindow = await readWindow(id);
+    windows.currentWindow = buildWindow;
+  }
+
+  async function readWindow(id) {
+    // @ts-ignore
+    let data = await chrome.storage.local.get(id);//, async (data) => {
+    //   // Get Tab IDs and Group IDs
+    //   let window = JSON.parse(data[id]);
+    //   // Build windows for current window
+    //   let buildWindow = await buildWindowFunc(window.tabIDs.slice(1));
+    //   return buildWindow
+    //   // console.log(windows.currentWindow)
+
+    //   // window.groupIDs.forEach((id) => readGroup(String(id))); // switch to build group and output group array / object / map?
+    // });
+    data = JSON.parse(data[id]);
+    let window = await buildWindow(data.tabIDs.slice(1));
+    return window;
   }
 
   async function buildWindow(ids) {
@@ -64,20 +94,20 @@
   //   })
   // }
 
-  async function readGroup(id) {
-    // console.log('id', id);
-    // @ts-ignore
-    let data = await chrome.storage.local.get(id);
-    // console.log('data', data);
-    let group = JSON.parse(data[id]);
-    // console.log('group', group);
-  }
+  // async function readGroup(id) {
+  //   // console.log('id', id);
+  //   // @ts-ignore
+  //   let data = await chrome.storage.local.get(id);
+  //   // console.log('data', data);
+  //   let group = JSON.parse(data[id]);
+  //   // console.log('group', group);
+  // }
 
 </script>
 
 <main>
   <Nav {filters} />
-  <Body {windows}/>
+  <Body {windows} {groups}/>
 </main>
 
 <style>

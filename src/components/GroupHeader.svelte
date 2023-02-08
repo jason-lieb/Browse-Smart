@@ -2,7 +2,7 @@
   export let group
 </script>
 
-<div class="header">
+<div>
   <input type="text" placeholder="{group.title}" class="{group.color}" readonly>
 </div>
 
@@ -30,57 +30,57 @@
     box-shadow: none;
   }
   .grey {
-    color: grey;
+    color: #DADCE0;
   }
   .blue {
-    color: blue;
+    color: #7CB7F5;
   }
   .red {
-    color: red;
+    color: #F48984;
   }
   .yellow {
-    color: yellow;
+    color: #F8D36E;
   }
   .green {
-    color: green;
+    color: #77C897;
   }
   .pink {
-    color: pink;
+    color: #F68BCA;
   }
   .purple {
-    color: purple;
+    color: #C68FF5;
   }
   .cyan {
-    color: cyan;
+    color: #5DDAEB;
   }
   .orange {
-    color: orange;
+    color: #F6AA76;
   }
   .grey::placeholder {
-    color: grey;
+    color: #DADCE0;
   }
   .blue::placeholder {
-    color: blue;
+    color: #7CB7F5;
   }
   .red::placeholder {
-    color: red;
+    color: #F48984;
   }
   .yellow::placeholder {
-    color: yellow;
+    color: #F8D36E;
   }
   .green::placeholder {
-    color: green;
+    color: #77C897;
   }
   .pink::placeholder {
-    color: pink;
+    color: #F68BCA;
   }
   .purple::placeholder {
-    color: purple;
+    color: #C68FF5;
   }
   .cyan::placeholder {
-    color: cyan;
+    color: #5DDAEB;
   }
   .orange::placeholder {
-    color: orange;
+    color: #F6AA76;
   }
 </style>

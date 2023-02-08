@@ -64,30 +64,30 @@
     background: hsl(206, 29%, 11%);
   }
   .grey {
-    background: grey;
+    background: #DADCE0;
   }
   .blue {
-    background: blue;
+    background: #7CB7F5;
   }
   .red {
-    background: red;
+    background: #F48984;
   }
   .yellow {
-    background: yellow;
+    background: #F8D36E;
   }
   .green {
-    background: green;
+    background: #77C897;
   }
   .pink {
-    background: pink;
+    background: #F68BCA;
   }
   .purple {
-    background: purple;
+    background: #C68FF5;
   }
   .cyan {
-    background: cyan;
+    background: #5DDAEB;
   }
   .orange {
-    background: orange;
+    background: #F6AA76;
   }
 </style>

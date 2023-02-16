@@ -2,14 +2,15 @@ MVP
 
 Data Structures
 windowIDs
+
 - list of windows
-windows
+  windows
 - stored individually based on windowID
 - contains tabIDs and groupIDs
-groups
+  groups
 - stored individually based on groupID -> store as a single object?
 - contains color, title -> add collapsed
-tabs
+  tabs
 - stored individually based on tabID
 - contains url, favIcon, title, groupID
 
@@ -18,9 +19,9 @@ tabs
 -- add custom filters
 
 How to visualize custom filters
+
 - Vertical bars to left of buttons?
 - More vertical bars to left of tabs
-
 
 Uncomment group query, parsing, etc.
 
@@ -39,18 +40,10 @@ Get All window filter working
 Decide on buttons for tabs and windows and selected tabs
 How to sleep tabs and how to store sleeping tabs
 
-
-
-
-
-
-
 Groups -> Only pass color to tabs, No accordion or group header
-
 
 Memory, Events, and Messages
 Background.js -> If a window only has a home tab, close window
-
 
 Other runtime events
 
@@ -64,8 +57,8 @@ Adds Colored line for groups
 Different Color for Different Workspaces
 Gap on right side of tab disappears when shrunk
 
-
 Pop-up
+
 - Show settings (or separate settings option in home tab)
 - Recreate Home tab for that window
 - Save page to notion
@@ -74,35 +67,21 @@ Pop-up
 Filter for reclaiming tabs from Notion?
 Load from Notion Button in Extension to Re-Open Long-Term Storage
 
-
-
-
-
 Additional Functionality:
 
 Separate "stuff to google" / notes section
-
-
-
-
-
-
-
-
 
 Potential Issues:
 
 Learn what Chrome does when power is abruptly turned off instead of shutting down -> how to recover data
 
 What happens if it goes offline?
+
 - Background service worker should still be able to run
 - Error message for certain functionalities
 
 What to do if storage is full?
 Expand storage with unlimited storage permission?
-
-
-
 
 Possible Future Additions:
 

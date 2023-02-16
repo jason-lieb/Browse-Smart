@@ -3,7 +3,7 @@
 </script>
 
 <div>
-  <input type="text" placeholder="{group.title}" class="{group.color}" readonly>
+  <input type="text" placeholder={group.title} class={group.color} readonly />
 </div>
 
 <style>
@@ -12,8 +12,8 @@
   }
   input {
     border: none;
-    padding: .125rem;
-    padding-left: .625rem;
+    padding: 0.125rem;
+    padding-left: 0.625rem;
     margin-left: 1.5rem;
     margin-bottom: 0;
     background: hsl(206, 29%, 11%);
@@ -30,57 +30,57 @@
     box-shadow: none;
   }
   .grey {
-    color: #DADCE0;
+    color: #dadce0;
   }
   .blue {
-    color: #7CB7F5;
+    color: #7cb7f5;
   }
   .red {
-    color: #F48984;
+    color: #f48984;
   }
   .yellow {
-    color: #F8D36E;
+    color: #f8d36e;
   }
   .green {
-    color: #77C897;
+    color: #77c897;
   }
   .pink {
-    color: #F68BCA;
+    color: #f68bca;
   }
   .purple {
-    color: #C68FF5;
+    color: #c68ff5;
   }
   .cyan {
-    color: #5DDAEB;
+    color: #5ddaeb;
   }
   .orange {
-    color: #F6AA76;
+    color: #f6aa76;
   }
   .grey::placeholder {
-    color: #DADCE0;
+    color: #dadce0;
   }
   .blue::placeholder {
-    color: #7CB7F5;
+    color: #7cb7f5;
   }
   .red::placeholder {
-    color: #F48984;
+    color: #f48984;
   }
   .yellow::placeholder {
-    color: #F8D36E;
+    color: #f8d36e;
   }
   .green::placeholder {
-    color: #77C897;
+    color: #77c897;
   }
   .pink::placeholder {
-    color: #F68BCA;
+    color: #f68bca;
   }
   .purple::placeholder {
-    color: #C68FF5;
+    color: #c68ff5;
   }
   .cyan::placeholder {
-    color: #5DDAEB;
+    color: #5ddaeb;
   }
   .orange::placeholder {
-    color: #F6AA76;
+    color: #f6aa76;
   }
 </style>

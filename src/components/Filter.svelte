@@ -6,18 +6,18 @@
 
   const selectFilter = (e) => {
     if (filter !== $selectedFilter) {
-      selectedFilter.set(filter);
+      selectedFilter.set(filter)
     }
   }
 </script>
 
 {#if filter === $selectedFilter}
-<button class="selected">{filter}</button>
+  <button class="selected">{filter}</button>
 {:else}
-<button class="outline" on:click={selectFilter}>{filter}</button>
+  <button class="outline" on:click={selectFilter}>{filter}</button>
 {/if}
-<style>
 
+<style>
   button {
     margin: 1rem;
     padding: 0.5rem;
@@ -26,5 +26,4 @@
   .selected {
     color: #11191f;
   }
-
 </style>

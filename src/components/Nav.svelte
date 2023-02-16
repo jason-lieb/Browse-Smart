@@ -2,6 +2,7 @@
   import Filter from './Filter.svelte'
   export let filters
 </script>
+
 <div class="container">
   <h1>Browser Hero</h1>
   {#each filters as filter}

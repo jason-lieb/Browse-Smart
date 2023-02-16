@@ -1,4 +1,4 @@
-const template = document.querySelector('template');
+const template = document.querySelector('template')
 
 // for (const tab of tabs) {
 //   // console.log(tab);

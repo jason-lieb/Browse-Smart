@@ -3,18 +3,19 @@
   export let tab
   export let group = { color: 'background' }
 </script>
-<div class="group {group.color}"></div>
+
+<div class="group {group.color}" />
 <div class="flex">
   <div class="tab">
     {#if tab.favIcon}
-    <img src={tab.favIcon} alt="Tab Fav Icon">
+      <img src={tab.favIcon} alt="Tab Fav Icon" />
     {:else}
-    <div class="blank"></div>
+      <div class="blank" />
     {/if}
-  <div class="stackedText">
-    <h6>{tab.title}</h6>
-    <p>{tab.url}</p>
-  </div>
+    <div class="stackedText">
+      <h6>{tab.title}</h6>
+      <p>{tab.url}</p>
+    </div>
   </div>
   <Delete />
 </div>
@@ -22,7 +23,7 @@
 <style>
   .group {
     height: 4rem;
-    width: .25rem;
+    width: 0.25rem;
   }
   .flex {
     display: flex;
@@ -42,8 +43,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  img, .blank {
-    margin: .5rem 1rem;
+  img,
+  .blank {
+    margin: 0.5rem 1rem;
     width: 32px;
     height: 32px;
   }
@@ -64,30 +66,30 @@
     background: hsl(206, 29%, 11%);
   }
   .grey {
-    background: #DADCE0;
+    background: #dadce0;
   }
   .blue {
-    background: #7CB7F5;
+    background: #7cb7f5;
   }
   .red {
-    background: #F48984;
+    background: #f48984;
   }
   .yellow {
-    background: #F8D36E;
+    background: #f8d36e;
   }
   .green {
-    background: #77C897;
+    background: #77c897;
   }
   .pink {
-    background: #F68BCA;
+    background: #f68bca;
   }
   .purple {
-    background: #C68FF5;
+    background: #c68ff5;
   }
   .cyan {
-    background: #5DDAEB;
+    background: #5ddaeb;
   }
   .orange {
-    background: #F6AA76;
+    background: #f6aa76;
   }
 </style>

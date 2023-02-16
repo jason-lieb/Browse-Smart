@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prettier": "npx prettier --config prettierrc.json --ignore-path .prettierignore --write ."
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.0",
+    "prettier": "^2.8.4",
+    "prettier-plugin-svelte": "^2.9.0",
     "svelte": "^3.54.0",
     "vite": "^4.0.0",
     "vite-plugin-cp": "^1.0.0"

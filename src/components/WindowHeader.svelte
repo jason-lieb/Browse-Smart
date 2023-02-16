@@ -4,20 +4,17 @@
 
 <div>
   {#if windowIndex === -1}
-    <input type="text" placeholder="Current Window" readonly>
+    <input type="text" placeholder="Current Window" readonly />
   {:else}
-    <input type="text" placeholder="Window {windowIndex + 1}" readonly>
+    <input type="text" placeholder="Window {windowIndex + 1}" readonly />
   {/if}
 </div>
 
 <style>
-  div {
-    grid-column: span 2;
-  }
   input {
     border: none;
-    padding: .125rem;
-    padding-left: .625rem;
+    padding: 0.125rem;
+    padding-left: 0.625rem;
     margin-left: 1.5rem;
     margin-bottom: 0.375rem;
     background: hsl(206, 29%, 11%);

@@ -4,15 +4,15 @@
   export let windows
   export let groups
 </script>
+
 <div class="container-fluid">
   {#if $selectedFilter === 'Current Window'}
-    <Window window={windows.currentWindow} {groups}/>
+    <Window window={windows.currentWindow} {groups} />
   {:else if $selectedFilter === 'All'}
     {#each windows.allWindows as window, windowIndex}
-      <Window {window} {windowIndex} {groups}/>
+      <Window {window} {windowIndex} {groups} />
     {/each}
   {/if}
-
 </div>
 
 <style>

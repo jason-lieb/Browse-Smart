@@ -16,18 +16,33 @@
 
 <div class="groupHeader" id={String(groupID)}>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div on:click={toggleGroup} class="rotate accordionGroup" style={accordionColor}>
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg
-    >
-  </div>
+  {#if group.collapsed}
+    <div on:click={toggleGroup} class="rotate accordionGroup" style={accordionColor}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg
+      >
+    </div>
+  {:else}
+    <div on:click={toggleGroup} class="accordionGroup" style={accordionColor}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg
+      >
+    </div>
+  {/if}
   <input type="text" placeholder={group.title} class={group.color} readonly />
 </div>
 

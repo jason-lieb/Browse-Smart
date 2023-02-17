@@ -90,7 +90,7 @@
     grid-template-columns: 1.25rem 1fr;
   }
   .rotate {
-    transform: rotate(-90deg);
+    transform: rotate(0deg) !important;
   }
   .accordion {
     position: relative;
@@ -99,5 +99,6 @@
     height: 24px;
     width: 24px;
     stroke: rgb(26, 179, 230);
+    transform: rotate(-90deg);
   }
 </style>

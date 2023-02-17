@@ -18,6 +18,8 @@ windowIDs
 -- add saved window name
 -- add custom filters
 
+get minified pico again
+
 How to visualize custom filters
 
 - Vertical bars to left of buttons?

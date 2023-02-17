@@ -1,23 +1,74 @@
 <script>
   export let group
+  export let groupID
+  export let toggleRotate
+
+  import { createEventDispatcher } from 'svelte';
+  const dispatch = createEventDispatcher();
+
+  function toggleGroup(e) {
+    let div = toggleRotate(e)
+    dispatch('message', { id: div.parentNode.id })
+  }
+
+  let accordionColor = `stroke: var(--${group.color})`;
 </script>
 
-<div>
+<div class="groupHeader" id={String(groupID)}>
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <div on:click={toggleGroup} class="rotate accordionGroup" style={accordionColor}>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg
+    >
+  </div>
   <input type="text" placeholder={group.title} class={group.color} readonly />
 </div>
 
 <style>
-  div {
+  .groupHeader {
+    --grey: #dadce0;
+    --blue: #7cb7f5;
+    --red: #f48984;
+    --yellow: #f8d36e;
+    --green: #77c897;
+    --pink: #f68bca;
+    --purple: #c68ff5;
+    --cyan: #5ddaeb;
+    --orange: #f6aa76;
+
     grid-column: span 2;
+    height: 3rem;
+    position: relative;
+    top: -1.25rem;
+  }
+
+  .accordionGroup {
+    position: relative;
+    top: 2.15rem;
+    left: -0.45rem;
+    height: 24px;
+    width: 24px;
+    z-index: 1;
+  }
+
+  .rotate {
+    transform: rotate(-90deg);
   }
   input {
     border: none;
     padding: 0.125rem;
     padding-left: 0.625rem;
-    margin-left: 1.5rem;
+    margin-left: 2.5rem;
     margin-bottom: 0;
     background: hsl(206, 29%, 11%);
-    font-size: 1rem;
+    font-size: 1.25rem;
     font-weight: bold;
     font-style: italic;
     color: rgb(26, 179, 230);
@@ -29,58 +80,31 @@
   input:focus {
     box-shadow: none;
   }
-  .grey {
-    color: #dadce0;
+  .grey, .grey::placeholder {
+    color: var(--grey);
   }
-  .blue {
-    color: #7cb7f5;
+  .blue, .blue::placeholder {
+    color: var(--blue);
   }
-  .red {
-    color: #f48984;
+  .red, .red::placeholder {
+    color: var(--red);
   }
-  .yellow {
-    color: #f8d36e;
+  .yellow, .yellow::placeholder {
+    color: var(--yellow);
   }
-  .green {
-    color: #77c897;
+  .green, .green::placeholder {
+    color: var(--green);
   }
-  .pink {
-    color: #f68bca;
+  .pink, .pink::placeholder {
+    color: var(--pink);
   }
-  .purple {
-    color: #c68ff5;
+  .purple, .purple::placeholder {
+    color: var(--purple);
   }
-  .cyan {
-    color: #5ddaeb;
+  .cyan, .cyan::placeholder {
+    color: var(--cyan);
   }
-  .orange {
-    color: #f6aa76;
-  }
-  .grey::placeholder {
-    color: #dadce0;
-  }
-  .blue::placeholder {
-    color: #7cb7f5;
-  }
-  .red::placeholder {
-    color: #f48984;
-  }
-  .yellow::placeholder {
-    color: #f8d36e;
-  }
-  .green::placeholder {
-    color: #77c897;
-  }
-  .pink::placeholder {
-    color: #f68bca;
-  }
-  .purple::placeholder {
-    color: #c68ff5;
-  }
-  .cyan::placeholder {
-    color: #5ddaeb;
-  }
-  .orange::placeholder {
-    color: #f6aa76;
+  .orange, .orange::placeholder {
+    color: var(--orange);
   }
 </style>

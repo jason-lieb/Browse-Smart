@@ -13,10 +13,15 @@
       <Window {window} {windowIndex} {groups} />
     {/each}
   {/if}
+  <div class="padding"></div>
 </div>
 
 <style>
   div {
     grid-column: 2;
+  }
+
+  .padding {
+    height: 1rem;
   }
 </style>

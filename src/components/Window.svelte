@@ -2,37 +2,48 @@
   import Tab from './Tab.svelte'
   import WindowHeader from './WindowHeader.svelte'
   import GroupHeader from './GroupHeader.svelte'
+
+  import { selectedFilter } from '../stores.js'
+
   export let window
   export let windowIndex = -1
   export let groups
 
+  let collapsed = false;
+
   function toggleRotate(e) {
-    let classes =
-      e.target.nodeName === 'svg'
-        ? e.target.parentNode.className.split(' ')
-        : e.target.className.split(' ')
-    let newClasses = classes.map((className) => {
-      if (className === 'closed') {
-        // update for accordion / rotate
-        return 'expanded'
-      } else if (className === 'expanded') {
-        return 'closed'
-      } else {
-        return className
-      }
-    })
-    if (e.target.nodeName === 'svg') {
-      e.target.parentNode.className = newClasses.join(' ')
-    } else {
-      e.target.className = newClasses.join(' ')
+    let div
+    switch (e.target.nodeName) {
+      case 'svg':
+        div = e.target.parentNode
+        break
+      case 'polyline':
+        div = e.target.parentNode.parentNode
+        break
+      default:
+        div = e.target
     }
+    let classes = div.className.split(' ')
+    classes = classes[0] === 'rotate' ? [classes[1], classes[2]] : ['rotate', ... classes]
+    div.className = classes.join(' ')
+    return div
+  }
+
+  function toggleWindow(e) {
+    collapsed = collapsed === true ? false : true
+    toggleRotate(e);
+  }
+
+  function handleMessage(e) {
+    groups[e.detail.id].collapsedInSvelte = (groups[e.detail.id].collapsedInSvelte ?? groups[e.detail.id].collapsed) ? false : true
   }
 </script>
 
 <div class="main">
   <div class="window container">
     <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div on:click={toggleRotate} class="accordion rotate">
+    {#if $selectedFilter !== 'Current Window'}
+    <div on:click={toggleWindow} class="rotate accordion">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -44,23 +55,29 @@
         stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg
       >
     </div>
+    {:else}
+      <div></div>
+    {/if}
     <WindowHeader {windowIndex} />
-    {#each window as tab, index}
-      {#if tab.groupID !== -1 && window[index - 1].groupID !== tab.groupID}
-        <GroupHeader group={groups[tab.groupID]} />
-      {:else if tab.groupID !== -1}
-        <Tab {tab} group={groups[tab.groupID]} />
-      {:else}
-        <Tab {tab} />
-      {/if}
-    {/each}
+    {#if !collapsed}
+      {#each window as tab, index}
+        {#if tab.groupID !== -1 && window[index - 1].groupID !== tab.groupID}
+          <GroupHeader group={groups[tab.groupID]} groupID={tab.groupID} {toggleRotate} on:message={handleMessage}/>
+        {/if}
+        {#if tab.groupID !== -1 && !(groups[tab.groupID].collapsedInSvelte ?? groups[tab.groupID].collapsed)}
+          <Tab {tab} group={groups[tab.groupID]} />
+        {:else if tab.groupID === -1}
+          <Tab {tab} />
+        {/if}
+      {/each}
+    {/if}
   </div>
 </div>
 
 <style>
   .main {
     max-width: calc(100vw - 17rem);
-    padding: 1rem 0;
+    padding-top: 1rem;
   }
   .window {
     max-width: 100%;

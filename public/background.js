@@ -1,36 +1,36 @@
-chrome.runtime.onInstalled.addListener(init);
+chrome.runtime.onInstalled.addListener(init)
 
 async function init() {
   // chrome.storage.local.clear(); /////
   try {
-    const rawData = await chrome.windows.getAll({ windowTypes: ['normal'] });
-    const windowIDs = createWindowIDs(rawData);
-    windowIDs.forEach(createHomeTab); // Add in if (url !== '') -> check for already created home tabs [Pending URL...?]
+    const rawData = await chrome.windows.getAll({ windowTypes: ['normal'] })
+    const windowIDs = createWindowIDs(rawData)
+    windowIDs.forEach(createHomeTab) // Add in if (url !== '') -> check for already created home tabs [Pending URL...?]
 
-    const homeTabIDs = await updateData();
+    const homeTabIDs = await updateData()
     windowIDs.forEach((windowID, i) =>
       sendMessage(String(windowID), homeTabIDs[i])
-    );
+    )
   } catch (err) {
-    console.error(err);
+    console.error(err)
   }
 }
 
 /////////////// Window IDs
 
 function createWindowIDs(rawData) {
-  let windowIDs = new Set();
-  rawData.forEach((window) => windowIDs.add(window.id));
+  let windowIDs = new Set()
+  rawData.forEach((window) => windowIDs.add(window.id))
   chrome.storage.local.set(
     { windowIDs: JSON.stringify(Array.from(windowIDs)) },
     () => {
-      let error = chrome.runtime.lastError;
+      let error = chrome.runtime.lastError
       if (error) {
-        console.error(error);
+        console.error(error)
       }
     }
-  );
-  return Array.from(windowIDs);
+  )
+  return Array.from(windowIDs)
 }
 
 function createHomeTab(windowID) {
@@ -40,7 +40,7 @@ function createHomeTab(windowID) {
     pinned: true,
     index: 0,
     url: './index.html',
-  });
+  })
 }
 
 ///////////////////////// Data
@@ -50,75 +50,75 @@ async function updateData() {
     let rawWindows = await chrome.windows.getAll({
       populate: true,
       windowTypes: ['normal'],
-    });
-    let rawGroups = await chrome.tabGroups.query({});
-    homeTabIDs = parseWindows(rawWindows); //[windows, tabs, homeTabIDs]
-    parseGroups(rawGroups);
-    return homeTabIDs;
+    })
+    let rawGroups = await chrome.tabGroups.query({})
+    homeTabIDs = parseWindows(rawWindows) //[windows, tabs, homeTabIDs]
+    parseGroups(rawGroups)
+    return homeTabIDs
   } catch (err) {
-    console.error(err);
+    console.error(err)
   }
 }
 
 function parseWindows(rawWindows) {
   // const windows = []; // For testing
   // const tabs = []; // For testing
-  const homeTabIDs = [];
+  const homeTabIDs = []
   rawWindows.forEach((window) => {
-    let tabsInWindow = [];
-    let groupsInWindow = new Set();
+    let tabsInWindow = []
+    let groupsInWindow = new Set()
     window.tabs.forEach((tab) => {
-      tabsInWindow.push(tab.id);
-      if (tab.groupId !== -1) groupsInWindow.add(tab.groupId);
+      tabsInWindow.push(tab.id)
+      if (tab.groupId !== -1) groupsInWindow.add(tab.groupId)
       let tabContent = {
         title: tab.title,
         url: tab.url,
         favIcon: tab.favIconUrl,
         groupID: tab.groupId,
-      };
+      }
       // console.log(tabContent) ///////////
       chrome.storage.local.set(
         { [String(tab.id)]: JSON.stringify(tabContent) },
         () => {
-          let error = chrome.runtime.lastError;
+          let error = chrome.runtime.lastError
           if (error) {
-            console.error(error);
+            console.error(error)
           }
         }
-      );
+      )
       // tabs.push(String(tab.id)); // For testing
       // tabs.set(tab.id, { title: tab.title, url: tab.url, favIcon: tab.favIconUrl, groupID: tab.groupId });
-    });
+    })
     let windowContent = {
       tabIDs: tabsInWindow,
       groupIDs: Array.from(groupsInWindow),
-    };
-    homeTabIDs.push(tabsInWindow[0]);
+    }
+    homeTabIDs.push(tabsInWindow[0])
     chrome.storage.local.set(
       { [String(window.id)]: JSON.stringify(windowContent) },
       () => {
-        let error = chrome.runtime.lastError;
+        let error = chrome.runtime.lastError
         if (error) {
-          console.error(error);
+          console.error(error)
         }
       }
-    );
+    )
     // windows.push(String(window.id)); // For testing
     // windows.set(window.id, { tabIDs: tabsInWindow, groupIDs: Array.from(groupsInWindow) });
-  });
-  return homeTabIDs; //[windows, tabs, homeTabIDs];
+  })
+  return homeTabIDs //[windows, tabs, homeTabIDs];
 }
 
 function parseGroups(rawGroups) {
-  const groups = {}; // For testing
+  const groups = {} // For testing
   rawGroups.forEach((group) => {
-    let groupID = group.id;
+    let groupID = group.id
     let groupContent = {
       title: group.title,
       color: group.color,
       collapsed: group.collapsed,
-    };
-    groups[groupID] = groupContent;
+    }
+    groups[groupID] = groupContent
     // chrome.storage.local.set({[String(group.id)]: JSON.stringify(groupContent)}, () => {
     //   let error = chrome.runtime.lastError;
     //   if (error) {
@@ -127,18 +127,18 @@ function parseGroups(rawGroups) {
     // })
     // groups.push(String(group.id)); // For testing
     // groups.set(group.id, { title: group.title, color: group.color })
-  });
+  })
   chrome.storage.local.set({ groups: JSON.stringify(groups) }, () => {
-    let error = chrome.runtime.lastError;
+    let error = chrome.runtime.lastError
     if (error) {
-      console.error(error);
+      console.error(error)
     }
-  });
+  })
   // return groups;
 }
 
 function sendMessage(windowID, tabID) {
-  setTimeout(chrome.tabs.sendMessage, 1000, tabID, windowID);
+  setTimeout(chrome.tabs.sendMessage, 1000, tabID, windowID)
 }
 
 // function readData(IDs) {

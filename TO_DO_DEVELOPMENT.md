@@ -1,8 +1,19 @@
-MVP
+chrome.windows.remove
+chrome.windows.onCreated.addListener
+chrome.windows.onRemoved.addListener
+chrome.tabs.move
+chrome.tabs.remove
+chrome.tabs.onCreated
+chrome.tabs.onDetached
+chrome.tabs.onMoved
+chrome.tabs.onRemoved
+chrome.tabs.onUpdated
+chrome.groups.onCreated
+chrome.groups.onMoved
+chrome.groups.onRemoved
+chrome.groups.onUpdated
 
-Data Structures
-windowIDs
-
+  windowsIDs
 - list of windows
   windows
 - stored individually based on windowID

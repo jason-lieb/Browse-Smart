@@ -3,11 +3,14 @@ chrome.runtime.onInstalled.addListener(init)
 async function init() {
   // chrome.storage.local.clear(); /////
   try {
+    // Get window IDs, store window IDs to storage, and create home tab on each window
     const rawData = await chrome.windows.getAll({ windowTypes: ['normal'] })
     const windowIDs = createWindowIDs(rawData)
     windowIDs.forEach(createHomeTab) // Add in if (url !== '') -> check for already created home tabs [Pending URL...?]
 
+    // Get data on all tabs / groups and save to storage
     const homeTabIDs = await updateData()
+    // Tell all the home tabs the window ID of its window
     windowIDs.forEach((windowID, i) =>
       sendMessage(String(windowID), homeTabIDs[i])
     )
@@ -17,7 +20,6 @@ async function init() {
 }
 
 /////////////// Window IDs
-
 function createWindowIDs(rawData) {
   let windowIDs = new Set()
   rawData.forEach((window) => windowIDs.add(window.id))
@@ -44,7 +46,6 @@ function createHomeTab(windowID) {
 }
 
 ///////////////////////// Data
-
 async function updateData() {
   try {
     let rawWindows = await chrome.windows.getAll({
@@ -52,7 +53,7 @@ async function updateData() {
       windowTypes: ['normal'],
     })
     let rawGroups = await chrome.tabGroups.query({})
-    homeTabIDs = parseWindows(rawWindows) //[windows, tabs, homeTabIDs]
+    homeTabIDs = parseWindows(rawWindows)
     parseGroups(rawGroups)
     return homeTabIDs
   } catch (err) {
@@ -61,22 +62,23 @@ async function updateData() {
 }
 
 function parseWindows(rawWindows) {
-  // const windows = []; // For testing
-  // const tabs = []; // For testing
   const homeTabIDs = []
+  // Loop through all windows
   rawWindows.forEach((window) => {
     let tabsInWindow = []
     let groupsInWindow = new Set()
+    // Loop through all tabs in window
     window.tabs.forEach((tab) => {
+      // Add tabs and groups
       tabsInWindow.push(tab.id)
       if (tab.groupId !== -1) groupsInWindow.add(tab.groupId)
+      // Save tab info to local storage for each individual tab
       let tabContent = {
         title: tab.title,
         url: tab.url,
         favIcon: tab.favIconUrl,
         groupID: tab.groupId,
       }
-      // console.log(tabContent) ///////////
       chrome.storage.local.set(
         { [String(tab.id)]: JSON.stringify(tabContent) },
         () => {
@@ -86,8 +88,6 @@ function parseWindows(rawWindows) {
           }
         }
       )
-      // tabs.push(String(tab.id)); // For testing
-      // tabs.set(tab.id, { title: tab.title, url: tab.url, favIcon: tab.favIconUrl, groupID: tab.groupId });
     })
     let windowContent = {
       tabIDs: tabsInWindow,
@@ -103,14 +103,12 @@ function parseWindows(rawWindows) {
         }
       }
     )
-    // windows.push(String(window.id)); // For testing
-    // windows.set(window.id, { tabIDs: tabsInWindow, groupIDs: Array.from(groupsInWindow) });
   })
-  return homeTabIDs //[windows, tabs, homeTabIDs];
+  return homeTabIDs
 }
 
 function parseGroups(rawGroups) {
-  const groups = {} // For testing
+  const groups = {}
   rawGroups.forEach((group) => {
     let groupID = group.id
     let groupContent = {
@@ -140,6 +138,11 @@ function parseGroups(rawGroups) {
 function sendMessage(windowID, tabID) {
   setTimeout(chrome.tabs.sendMessage, 1000, tabID, windowID)
 }
+
+//
+//
+//
+//
 
 // function readData(IDs) {
 //   IDs.forEach((ID) => {

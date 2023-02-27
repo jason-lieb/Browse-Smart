@@ -1,5 +1,5 @@
 <script>
-  import Window from './Window.svelte'
+  import Window from './window/Window.svelte'
   import { selectedFilter } from '../stores.js'
   export let windows
   export let groups
@@ -13,7 +13,7 @@
       <Window {window} {windowIndex} {groups} />
     {/each}
   {/if}
-  <div class="padding"></div>
+  <div class="padding" />
 </div>
 
 <style>

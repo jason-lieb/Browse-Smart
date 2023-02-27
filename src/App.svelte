@@ -10,16 +10,9 @@
   }
   let groups
 
-  // function testConsole() {
-  //   console.log(selectedFilter);
-  // }
-  // testConsole();
-  // setTimeout(testConsole, 8000);
-
   // document.addEventListener('visibilitychange', () => {
   //   if (!document.hidden) {
   //     // Reload
-  //     //// Send message to background to update data
   //     //// Read message from background
   //     //// Update DOM
   //   }

@@ -1,5 +1,5 @@
 <script>
-  import Delete from './Delete.svelte'
+  import TabButtonGroup from './TabButtonGroup.svelte'
   export let tab
   export let group = { color: 'background' }
 </script>
@@ -17,7 +17,7 @@
       <p>{tab.url}</p>
     </div>
   </div>
-  <Delete />
+  <TabButtonGroup />
 </div>
 
 <style>

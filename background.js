@@ -1,25 +1,39 @@
 // Global
-const extensionID = chrome.runtime.id
 let homeTabIDs
 let windowIDs
 let manageHomeRunning = false
 let startedManageHomeTabs
 let startedUpdateEvents
+let updateAlreadyQueued
+let manageAlreadyQueued
+let _
 
 // Initialization of Extension
-chrome.runtime.onInstalled.addListener(init)
+chrome.runtime.onInstalled.addListener(manageHomeTabs)
 
-async function init() {
-  // chrome.storage.local.clear(); /////
-  try {
-    // Create home tabs for all windows and get data on all tabs / groups to save to storage
-    const _ = await manageHomeTabs()
-    updateData()
-    // homeTabIDs = await updateData() // Change to updateData()? ///////////////////////////////
-  } catch (err) {
-    console.error(err)
-  }
-}
+// Handle messages from home tabs
+chrome.runtime.onMessage.addListener(handleIncomingMessages)
+
+// Events that will create a new window
+chrome.windows.onCreated.addListener(manageHomeTabs)
+chrome.tabs.onDetached.addListener(manageHomeTabs)
+
+// Listen for if home tab is deleted or if home tab is only tab in window
+chrome.tabs.onRemoved.addListener(manageHomeTabs)
+
+// If home tab is unpinned, create new home tab and delete old one? ///////////////////////////////////////
+chrome.tabs.onUpdated.addListener(updateOnEvent)
+
+// Order of events if other pinned tabs are moved in front of home tab (is onUpdated first?) /////////////////////
+chrome.tabs.onMoved.addListener(updateOnEvent)
+
+// Events that only require updating data
+chrome.windows.onRemoved.addListener(updateOnEvent)
+chrome.tabs.onCreated.addListener(updateOnEvent)
+chrome.tabGroups.onCreated.addListener(updateOnEvent)
+chrome.tabGroups.onMoved.addListener(updateOnEvent)
+chrome.tabGroups.onRemoved.addListener(updateOnEvent)
+chrome.tabGroups.onUpdated.addListener(updateOnEvent)
 
 // Parse windows query and save windowIDs to storage
 function createWindowIDs(rawData) {
@@ -37,17 +51,7 @@ function createWindowIDs(rawData) {
   windowIDs = Array.from(setWindowIDs)
 }
 
-// function createHomeTab(windowID) {
-//   chrome.tabs.create({
-//     windowId: windowID,
-//     active: false,
-//     pinned: true,
-//     index: 0,
-//     url: './index.html',
-//   })
-// }
-
-///////////////////////// Data
+// Query data and save to storage
 async function updateData() {
   try {
     let rawWindows = await chrome.windows.getAll({
@@ -57,7 +61,6 @@ async function updateData() {
     let rawGroups = await chrome.tabGroups.query({})
     homeTabIDs = parseWindows(rawWindows)
     parseGroups(rawGroups)
-    // return homeTabIDs
   } catch (err) {
     console.error(err)
   }
@@ -119,14 +122,6 @@ function parseGroups(rawGroups) {
       collapsed: group.collapsed,
     }
     groups[groupID] = groupContent
-    // chrome.storage.local.set({[String(group.id)]: JSON.stringify(groupContent)}, () => {
-    //   let error = chrome.runtime.lastError;
-    //   if (error) {
-    //     console.error(error)
-    //   }
-    // })
-    // groups.push(String(group.id)); // For testing
-    // groups.set(group.id, { title: group.title, color: group.color })
   })
   chrome.storage.local.set({ groups: JSON.stringify(groups) }, () => {
     let error = chrome.runtime.lastError
@@ -134,24 +129,12 @@ function parseGroups(rawGroups) {
       console.error(error)
     }
   })
-  // return groups;
 }
 
-function sendMessage(windowID, tabID) {
-  setTimeout(chrome.tabs.sendMessage, 1000, tabID, windowID) // Delay needed?
-}
-
-//
-//
-//
-//
-//
-//
-// Message from home tabs
-chrome.runtime.onMessage.addListener(handleIncomingMessages)
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function handleIncomingMessages(message, sender) {
   // console.log('incoming message')
-  console.log('message', message)
+  // console.log('message', message)
   // console.log('sender', sender)
   const windowIdOfSender = sender.tab.windowId
   switch (message) {
@@ -165,42 +148,26 @@ function handleIncomingMessages(message, sender) {
   }
 }
 
-///// Update Data on Events -> Change to Windows, Tab Groups, or Tabs
-
-// Events that will create a new window
-chrome.windows.onCreated.addListener(createHomeTabAndUpdate)
-chrome.tabs.onDetached.addListener(createHomeTabAndUpdate)
-
-// Listen for if home tab is deleted or if home tab is only tab in window
-chrome.tabs.onRemoved.addListener(createHomeTabAndUpdate)
-
-// If home tab is unpinned, create new home tab and delete old one? ///////////////////////////////////////
-chrome.tabs.onUpdated.addListener(updateOnEvent)
-
-// Order of events if other pinned tabs are moved in front of home tab (is onUpdated first?) /////////////////////
-chrome.tabs.onMoved.addListener(updateOnEvent)
-
-// Events that only require updating data
-chrome.windows.onRemoved.addListener(updateOnEvent)
-chrome.tabs.onCreated.addListener(updateOnEvent)
-chrome.tabGroups.onCreated.addListener(updateOnEvent)
-chrome.tabGroups.onMoved.addListener(updateOnEvent)
-chrome.tabGroups.onRemoved.addListener(updateOnEvent)
-chrome.tabGroups.onUpdated.addListener(updateOnEvent)
-
-async function createHomeTabAndUpdate() {
-  let _ = await manageHomeTabs()
-  updateOnEvent()
-}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Function to update stored data on chrome events
 async function updateOnEvent() {
   // Only run function if it hasn't been ran for 500 ms and manageHomeTabs isn't running
-  if (Date.now() - startedUpdateEvents < 500 || manageHomeRunning) return
+  if (Date.now() - startedUpdateEvents < 500 || manageHomeRunning) {
+    if (!updateAlreadyQueued) {
+      setTimeout(updateOnEvent, 1000)
+      updateAlreadyQueued = true
+    }
+    return
+  }
   startedUpdateEvents = Date.now()
+  updateAlreadyQueued = false
+  // console.log('run update') //////////////////////////////////////////
 
   // Update data and message active home tabs, so they know to update
-  let _ = await updateData()
+  _ = await updateData()
   const activeTabs = await chrome.tabs.query({ active: true })
   activeTabs.forEach((active) => {
     if (homeTabIDs.includes(active.id))
@@ -214,8 +181,16 @@ async function manageHomeTabs() {
   manageHomeRunning = true
 
   // Only run function if it hasn't been ran for 500 ms
-  if (Date.now() - startedManageHomeTabs < 500) return
+  if (Date.now() - startedManageHomeTabs < 500) {
+    if (!manageAlreadyQueued) {
+      setTimeout(manageHomeTabs, 1000)
+      manageAlreadyQueued = true
+    }
+    return
+  } // || updateEventsRunning
   startedManageHomeTabs = Date.now()
+  manageAlreadyQueued = false
+  // console.log('run manage') //////////////////////////////////////////
 
   // Query all windows with their tabs included
   const allWindows = await chrome.windows.getAll({
@@ -224,30 +199,20 @@ async function manageHomeTabs() {
   })
 
   // Set variable windowIDs
-  createWindowIDs(allWindows)
+  createWindowIDs(allWindows) ///////////////////////// Necessary Here? / In Update Instead?
 
   // Delete all home tabs that aren't in index 0
-  deleteHomeTabs(allWindows)
+  const tabsToDelete = findHomeTabsToDelete(allWindows)
+  _ = await deleteHomeTabs(tabsToDelete)
 
-  // Loop to try to add home tabs until it is successful
-  let tabCreationSuccessful = false
-  do {
-    try {
-      // Add home tabs to windows without home tab in position 0
-      let _ = await addHomeTabs(allWindows)
-      tabCreationSuccessful = true
-    } catch (err) {
-      let wait = () => new Promise((resolve) => setTimeout(resolve, 500))
-      let _ = await wait()
-    }
-  } while (!tabCreationSuccessful)
+  // Add home tabs to windows without home tab in position 0
+  _ = await addHomeTabs(allWindows)
 
   manageHomeRunning = false
-  return
+  updateOnEvent()
 }
 
-function deleteHomeTabs(allWindows) {
-  console.log('test')
+function findHomeTabsToDelete(allWindows) {
   const tabsToDelete = []
   allWindows.forEach((window) => {
     // Add tab ids of any home tabs not in index 0 to list to delete
@@ -256,25 +221,63 @@ function deleteHomeTabs(allWindows) {
         tabsToDelete.push(window.tabs[i].id)
       }
     }
-    // Add tab id of home tab to list to delete if its the only tab in the window ///////////// Add do while loop to fix dragging
+    // Add tab id of home tab to list to delete if its the only tab in the window
     if (window.tabs.length === 1 && window.tabs[0].title === 'Browse Smart') {
       tabsToDelete.push(window.tabs[0].id)
     }
   })
-  chrome.tabs.remove(tabsToDelete)
+  console.log('all tabs to delete', tabsToDelete) ///////////////////
+  return tabsToDelete
+}
+
+async function deleteHomeTabs(tabsToDelete) {
+  // Loop to try to delete home tabs until it is successful
+  let deletedSuccessfully = false
+  do {
+    try {
+      _ = await deleteTabs(tabsToDelete)
+      // console.log('deleted Successfully') ///////////////////
+      deletedSuccessfully = true
+    } catch (err) {
+      _ = await wait()
+      // console.log('test wait delete') ///////////////////
+    }
+  } while (!deletedSuccessfully)
+  // console.log('end of delete Home Tabs') ///////////////////
+}
+
+async function deleteTabs(tabsToDelete) {
+  _ = await chrome.tabs.remove(tabsToDelete)
 }
 
 async function addHomeTabs(allWindows) {
-  for (let window of allWindows) {
-    if (window.tabs[0].title !== 'Browse Smart') {
-      let _ = await chrome.tabs.create({
-        //////////////////////////////// Need to be asynchronous?
-        windowId: window.id,
-        active: false,
-        pinned: true,
-        index: 0,
-        url: './index.html',
-      })
+  // Loop to try to add home tabs until it is successful
+  let tabCreationSuccessful = false
+  do {
+    try {
+      for (let window of allWindows) {
+        if (window.tabs[0].title !== 'Browse Smart') {
+          _ = await createHomeTab(window.id)
+        }
+      }
+      tabCreationSuccessful = true
+    } catch (err) {
+      let _ = await wait()
+      console.log('test wait create')
     }
-  }
+  } while (!tabCreationSuccessful)
+}
+
+async function createHomeTab(windowID) {
+  _ = await chrome.tabs.create({
+    windowId: windowID,
+    active: false,
+    pinned: true,
+    index: 0,
+    url: './index.html',
+  })
+}
+
+function wait() {
+  return new Promise((resolve) => setTimeout(resolve, 500))
 }

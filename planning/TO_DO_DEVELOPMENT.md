@@ -1,3 +1,26 @@
+## To Do
+
+Messages from Home Tabs (Sleep / Delete)
+Break background into modules
+Error handling
+
+## Special Cases
+
+Home tag is detached
+Unpinned home tag
+Pinned other tabs moved in front of home tab
+
+## Commands
+
+chrome.windows.remove
+chrome.tabs.move
+chrome.tabs.remove
+
+## Buttons
+
+- send to Notion
+- export
+
 ## Data Structure
 
 - windowsIDs
@@ -12,17 +35,6 @@
   stored individually based on tabID
   contains url, favIcon, title, groupID
 
-## Commands
-
-chrome.windows.remove
-chrome.tabs.move
-chrome.tabs.remove
-
-## Buttons
-
-- send to Notion
-- export
-
 ## Sleeping
 
 Sleep tabs within a window (show sleeping tabs below awake tabs / don't keep index of sleeping tabs)
@@ -31,6 +43,10 @@ How to sleep tabs and how to store sleeping tabs
 Awake Filter?
 Accordion for sleeping tabs
 Shift to end of window on sleep or create entirely new window?
+
+## Misc
+
+Cache Home Page, etc.
 
 ## Custom Filters
 

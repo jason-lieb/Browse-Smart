@@ -9,6 +9,7 @@ Error handling
 Home tag is detached
 Unpinned home tag
 Pinned other tabs moved in front of home tab
+Error when deleting a tab group or ungrouping the tabs
 
 ## Commands
 

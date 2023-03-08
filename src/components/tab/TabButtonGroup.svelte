@@ -1,6 +1,6 @@
 <script>
-  import Delete from '../Delete.svelte'
-  import Sleep from '../Sleep.svelte'
+  import Delete from '../buttons/Delete.svelte'
+  import Sleep from '../buttons/Sleep.svelte'
 
   function handleClick(e) {
     console.log(e.target.nodeName)

@@ -1,5 +1,5 @@
 <script>
-  import Nav from './components/Nav.svelte'
+  import Nav from './components/nav/Nav.svelte'
   import Body from './components/Body.svelte'
 
   let filters = ['Current Window', 'All', 'Sleeping']

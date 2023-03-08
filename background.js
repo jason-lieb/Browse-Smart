@@ -32,7 +32,7 @@ chrome.windows.onRemoved.addListener(updateOnEvent)
 chrome.tabs.onCreated.addListener(updateOnEvent)
 chrome.tabGroups.onCreated.addListener(updateOnEvent)
 chrome.tabGroups.onMoved.addListener(updateOnEvent)
-chrome.tabGroups.onRemoved.addListener(updateOnEvent)
+chrome.tabGroups.onRemoved.addListener(updateOnEvent) ////////////////////// Investigate error
 chrome.tabGroups.onUpdated.addListener(updateOnEvent)
 
 // Parse windows query and save windowIDs to storage
@@ -226,7 +226,7 @@ function findHomeTabsToDelete(allWindows) {
       tabsToDelete.push(window.tabs[0].id)
     }
   })
-  console.log('all tabs to delete', tabsToDelete) ///////////////////
+  // console.log('all tabs to delete', tabsToDelete) ///////////////////
   return tabsToDelete
 }
 
@@ -263,7 +263,7 @@ async function addHomeTabs(allWindows) {
       tabCreationSuccessful = true
     } catch (err) {
       let _ = await wait()
-      console.log('test wait create')
+      // console.log('test wait create')
     }
   } while (!tabCreationSuccessful)
 }

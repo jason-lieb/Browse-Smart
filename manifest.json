@@ -9,7 +9,6 @@
     "128": "./assets/icons/icon128.png"
   },
   "action": {
-    "default_popup": "popup.html",
     "default_title": "Browse Smart"
   },
   "background": {

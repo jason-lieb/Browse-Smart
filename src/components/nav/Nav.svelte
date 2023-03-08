@@ -13,7 +13,7 @@
 <style>
   @font-face {
     font-family: lobster;
-    src: url('../assets/Lobster-Regular.ttf');
+    src: url('../../assets/Lobster-Regular.ttf');
   }
   h1 {
     text-align: center;

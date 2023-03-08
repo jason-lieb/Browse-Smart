@@ -157,7 +157,7 @@ async function updateOnEvent() {
   // Only run function if it hasn't been ran for 500 ms and manageHomeTabs isn't running
   if (Date.now() - startedUpdateEvents < 500 || manageHomeRunning) {
     if (!updateAlreadyQueued) {
-      setTimeout(updateOnEvent, 2000)
+      setTimeout(updateOnEvent, 1000)
       updateAlreadyQueued = true
     }
     return
@@ -183,7 +183,7 @@ async function manageHomeTabs() {
   // Only run function if it hasn't been ran for 500 ms
   if (Date.now() - startedManageHomeTabs < 500) {
     if (!manageAlreadyQueued) {
-      setTimeout(manageHomeTabs, 2000)
+      setTimeout(manageHomeTabs, 1000)
       manageAlreadyQueued = true
     }
     return
@@ -226,7 +226,7 @@ function findHomeTabsToDelete(allWindows) {
       tabsToDelete.push(window.tabs[0].id)
     }
   })
-  console.log('all tabs to delete', tabsToDelete) ///////////////////
+  // console.log('all tabs to delete', tabsToDelete) ///////////////////
   return tabsToDelete
 }
 
@@ -236,14 +236,14 @@ async function deleteHomeTabs(tabsToDelete) {
   do {
     try {
       _ = await deleteTabs(tabsToDelete)
-      console.log('deleted Successfully') ///////////////////
+      // console.log('deleted Successfully') ///////////////////
       deletedSuccessfully = true
     } catch (err) {
       _ = await wait()
-      console.log('test wait delete') ///////////////////
+      // console.log('test wait delete') ///////////////////
     }
   } while (!deletedSuccessfully)
-  console.log('end of delete Home Tabs') ///////////////////
+  // console.log('end of delete Home Tabs') ///////////////////
 }
 
 async function deleteTabs(tabsToDelete) {
@@ -263,7 +263,7 @@ async function addHomeTabs(allWindows) {
       tabCreationSuccessful = true
     } catch (err) {
       let _ = await wait()
-      console.log('test wait create')
+      // console.log('test wait create')
     }
   } while (!tabCreationSuccessful)
 }

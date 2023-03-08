@@ -24,12 +24,10 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: './index.html',
-        popup: './popup.html',
       },
       output: {
         dir: 'public/',
         index: 'index.html',
-        popup: 'popup.html',
       },
     },
   },

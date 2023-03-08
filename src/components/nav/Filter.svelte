@@ -2,7 +2,7 @@
   export let filter
   // export let selectedFilter
 
-  import { selectedFilter } from '../stores.js'
+  import { selectedFilter } from '../../stores.js'
 
   const selectFilter = (e) => {
     if (filter !== $selectedFilter) {

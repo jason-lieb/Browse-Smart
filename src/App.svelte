@@ -1,7 +1,6 @@
 <script>
   import Nav from './components/Nav.svelte'
   import Body from './components/Body.svelte'
-  // import { selectedFilter } from './stores.js'
 
   let filters = ['Current Window', 'All', 'Sleeping']
   let windows = {
@@ -9,21 +8,43 @@
     allWindows: [],
   }
   let groups
+  let windowID
 
-  // document.addEventListener('visibilitychange', () => {
-  //   if (!document.hidden) {
-  //     // Reload
-  //     //// Read message from background
-  //     //// Update DOM
-  //   }
-  // })
+  // Reload data on home tab visibility change
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      if (windowID) loadCurrentWindow(windowID)
+      loadAllWindows()
+      loadAllGroups()
+    }
+  })
 
-  // Send message to background asking for window ID when created
-  // @ts-ignore
-  chrome.runtime.onMessage.addListener(loadCurrentWindow)
+  init()
 
-  setTimeout(loadAllWindows, 2000)
-  setTimeout(loadAllGroups, 0)
+  // Load initial data and request windowID from background service
+  function init() {
+    // @ts-ignore
+    chrome.runtime.sendMessage('windowID')
+    loadAllGroups()
+    loadAllWindows()
+  }
+
+  // @ts-ignore // Handle message from background service
+  chrome.runtime.onMessage.addListener(handleMessage)
+
+  function handleMessage(message) {
+    switch (message.length) {
+      case 6: // message is 'update'
+        if (windowID) loadCurrentWindow(windowID)
+        loadAllWindows()
+        loadAllGroups()
+        break
+      default: // message is windowID
+        if (message === 'windowID') return // Ignore the runtime message
+        windowID = message
+        loadCurrentWindow(message)
+    }
+  }
 
   async function loadAllWindows() {
     // @ts-ignore
@@ -51,16 +72,7 @@
 
   async function readWindow(id) {
     // @ts-ignore
-    let data = await chrome.storage.local.get(id) //, async (data) => {
-    //   // Get Tab IDs and Group IDs
-    //   let window = JSON.parse(data[id]);
-    //   // Build windows for current window
-    //   let buildWindow = await buildWindowFunc(window.tabIDs.slice(1));
-    //   return buildWindow
-    //   // console.log(windows.currentWindow)
-
-    //   // window.groupIDs.forEach((id) => readGroup(String(id))); // switch to build group and output group array / object / map?
-    // });
+    let data = await chrome.storage.local.get(id)
     data = JSON.parse(data[id])
     let window = await buildWindow(data.tabIDs.slice(1))
     return window
@@ -75,23 +87,6 @@
     }
     return buildWindow
   }
-
-  // function readTab(id) {
-  //   // @ts-ignore
-  //   chrome.storage.local.get(id, (data) => {
-  //     // console.log(JSON.parse(data[id]))
-  //     return JSON.parse(data[id]);
-  //   })
-  // }
-
-  // async function readGroup(id) {
-  //   // console.log('id', id);
-  //   // @ts-ignore
-  //   let data = await chrome.storage.local.get(id);
-  //   // console.log('data', data);
-  //   let group = JSON.parse(data[id]);
-  //   // console.log('group', group);
-  // }
 </script>
 
 <main>

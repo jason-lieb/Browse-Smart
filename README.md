@@ -1,1 +1,0 @@
-# Chrome Tab Management Extension

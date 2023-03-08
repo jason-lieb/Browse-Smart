@@ -5,7 +5,7 @@
 
 <style>
   button {
-    margin: 0.5rem 1rem;
+    margin: 0.5rem 0.5rem;
     padding: 0;
     width: 1.5rem;
     height: 1.5rem;

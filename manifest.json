@@ -1,5 +1,5 @@
 {
-  "name": "Browser Hero",
+  "name": "Browse Smart",
   "description": "A tab manager that sleeps tabs and exports tabs to be used later",
   "manifest_version": 3,
   "version": "0.1.0",
@@ -10,7 +10,7 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Browser Hero"
+    "default_title": "Browse Smart"
   },
   "background": {
     "service_worker": "background.js"

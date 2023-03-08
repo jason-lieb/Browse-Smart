@@ -1,56 +1,25 @@
-# Add Notes from Notion
+## Data Structure
 
-- How to get extension id from content script so messages can be sent to background script
-- Alternative: get extension id from background script and send to content script at initialization
+- windowsIDs
+  list of windows
+- windows
+  stored individually based on windowID
+  contains tabIDs and groupIDs
+- groups
+  stored individually based on groupID -> store as a single object?
+  contains color, title -> add collapsed
+- tabs
+  stored individually based on tabID
+  contains url, favIcon, title, groupID
 
-## Data
-
-- Switch to IndexedDB? -> Do challenge 19
-  windowsIDs
-
-* list of windows
-  windows
-* stored individually based on windowID
-* contains tabIDs and groupIDs
-  groups
-* stored individually based on groupID -> store as a single object?
-* contains color, title -> add collapsed
-  tabs
-* stored individually based on tabID
-* contains url, favIcon, title, groupID
-
-## Events
+## Commands
 
 chrome.windows.remove
-chrome.windows.onCreated.addListener
-chrome.windows.onRemoved.addListener
 chrome.tabs.move
 chrome.tabs.remove
-chrome.tabs.onCreated
-chrome.tabs.onDetached
-chrome.tabs.onMoved
-chrome.tabs.onRemoved
-chrome.tabs.onUpdated
-chrome.groups.onCreated
-chrome.groups.onMoved
-chrome.groups.onRemoved
-chrome.groups.onUpdated
-
-Background.js automatically creates new home tabs
-All windows have 1 and only 1 home tab
-Background.js -> If a window only has a home tab, close window
-
-###
-
-Draw out diagram of events and communication between background script and home tabs
-When any event happens, store all data
-If one of the tabs is active, send message from background script to tab to tell it to update
-On visibility change, grab new data
 
 ## Buttons
 
-- show when hovered, hide by default
-- sleep
 - send to Notion
 - export
 

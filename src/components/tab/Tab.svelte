@@ -2,6 +2,10 @@
   import TabButtonGroup from './TabButtonGroup.svelte'
   export let tab
   export let group = { color: 'background' }
+
+  function handleClick(e) {
+    console.log(e)
+  }
 </script>
 
 <div class="group {group.color}" />
@@ -40,6 +44,7 @@
   }
   .stackedText {
     max-width: calc(100vw - 25rem);
+    flex-shrink: 1;
     overflow: hidden;
     text-overflow: ellipsis;
   }

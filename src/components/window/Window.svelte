@@ -67,7 +67,7 @@
     <WindowHeader {windowIndex} />
     {#if !collapsed}
       {#each window as tab, index}
-        {#if tab.groupID !== -1 && window[index - 1].groupID !== tab.groupID}
+        {#if tab?.groupID !== -1 && window[index - 1]?.groupID !== tab?.groupID}
           <GroupHeader
             group={groups[tab.groupID]}
             groupID={tab.groupID}
@@ -75,9 +75,9 @@
             on:message={handleMessage}
           />
         {/if}
-        {#if tab.groupID !== -1 && !(groups[tab.groupID].collapsedInSvelte ?? groups[tab.groupID].collapsed)}
+        {#if tab?.groupID !== -1 && !(groups[tab?.groupID].collapsedInSvelte ?? groups[tab?.groupID].collapsed)}
           <Tab {tab} group={groups[tab.groupID]} />
-        {:else if tab.groupID === -1}
+        {:else if tab?.groupID === -1}
           <Tab {tab} />
         {/if}
       {/each}

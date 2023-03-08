@@ -4,7 +4,7 @@
 </script>
 
 <div class="container">
-  <h1>Browser Hero</h1>
+  <h1>Browse Smart</h1>
   {#each filters as filter}
     <Filter {filter} />
   {/each}

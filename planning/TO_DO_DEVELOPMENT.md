@@ -2,13 +2,12 @@
 
 Move runtime messages from App to Original Event
 Messages from Home Tabs (Awake / Delete (Sleeping))
-Errors that prevent home tab from functioning
-
-- Cannot read properties of undefined (reading 'color') when updating on visibility change when selected filter is sleeping
 
 Break background into modules
 Error handling
 When a group is deleted, remove from svelte stores
+
+Sporadic tab groups not supported
 
 ## Special Cases
 

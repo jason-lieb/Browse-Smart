@@ -74,10 +74,10 @@ async function updateData() {
   }
   try {
     let rawGroups = await chrome.tabGroups.query({})
-    // console.log('rawGroups', rawGroups)
+    console.log('rawGroups', rawGroups)
     parseGroups(rawGroups)
   } catch (err) {
-    console.error(err)
+    console.log(err) ////////////////////////////////////////
   }
 }
 
@@ -173,7 +173,11 @@ async function handleIncomingMessages(message, sender) {
 
   switch (messageType) {
     case 'windowID':
-      chrome.tabs.sendMessage(sender.tab.id, String(windowIdOfSender))
+      chrome.tabs.sendMessage(
+        sender.tab.id,
+        String(windowIdOfSender),
+        sendMessageCallback
+      )
       break
     case 'sleep':
       let sleeping = await chrome.storage.local.get('sleeping')
@@ -217,7 +221,7 @@ async function updateOnEvent() {
   const activeTabs = await chrome.tabs.query({ active: true })
   activeTabs.forEach((active) => {
     if (homeTabIDs.includes(active.id))
-      chrome.tabs.sendMessage(active.id, 'update')
+      chrome.tabs.sendMessage(active.id, 'update', sendMessageCallback)
   })
 }
 
@@ -338,6 +342,19 @@ function deleteFromMemory(id) {
     const err = chrome.runtime.lastError
     if (err) console.error(err)
   })
+}
+
+function sendMessageCallback(res) {
+  const lastError = chrome.runtime.lastError
+  if (
+    lastError &&
+    lastError.message !==
+      'The message port closed before a response was received.'
+  ) {
+    console.log('Error', lastError.message)
+  } else {
+    console.log('res', res)
+  }
 }
 
 //

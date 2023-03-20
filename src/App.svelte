@@ -38,6 +38,9 @@
         break
       default: // message is windowID
         if (message === 'windowID') return // Ignore the runtime message
+        if (message.split(' ')[0] === 'sleep') return // Ignore messages sent from home tab buttons
+        if (message.split(' ')[0] === 'delete') return
+        if (message.split(' ')[0] === 'wake') return
         windowID = message
         loadCurrentWindow(message)
     }
@@ -46,7 +49,6 @@
   async function loadAllWindows() {
     // @ts-ignore
     let windowIDs = await chrome.storage.local.get('windowIDs')
-
     windowIDs = JSON.parse(windowIDs['windowIDs'])
     let allWindowsBuild = []
     for (let id of windowIDs) {
@@ -59,7 +61,6 @@
   async function loadSleeping() {
     // @ts-ignore
     let sleepingTabs = await chrome.storage.local.get('sleeping')
-
     sleepingTabs =
       Object.keys(sleepingTabs).length > 0
         ? JSON.parse(sleepingTabs['sleeping'])
@@ -76,7 +77,6 @@
   async function readWindow(id) {
     // @ts-ignore
     let data = await chrome.storage.local.get(id)
-
     data = JSON.parse(data[id])
     let window = await buildWindow(data.tabIDs.slice(1))
     data.groupIDs.forEach((id) => loadGroup(id))

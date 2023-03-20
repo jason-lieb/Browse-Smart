@@ -48,7 +48,7 @@
       case 'Current Window':
         window = $currentWindow
         break
-      case 'All Windows':
+      case 'All':
         window = $allWindows[windowIndex]
         break
       case 'Sleeping':

@@ -34,10 +34,12 @@ chrome.tabs.onRemoved.addListener((id) => {
 })
 
 // If home tab is unpinned, create new home tab and delete old one? ////////////////////////////////////////////////
-chrome.tabs.onUpdated.addListener(updateOnEvent)
+// chrome.tabs.onUpdated.addListener(updateOnEvent)
+chrome.tabs.onUpdated.addListener(manageHomeTabs)
 
 // Order of events if other pinned tabs are moved in front of home tab (is onUpdated first?) /////////////////////
-chrome.tabs.onMoved.addListener(updateOnEvent)
+// chrome.tabs.onMoved.addListener(updateOnEvent)
+chrome.tabs.onMoved.addListener(manageHomeTabs)
 
 // Events that don't require home tabs to be modified
 chrome.windows.onRemoved.addListener((id) => {
@@ -50,10 +52,14 @@ chrome.tabGroups.onRemoved.addListener((group) => {
   // Remove deleted tab group from Chrome Storage
   deleteFromMemory(String(group.id))
 }) //////////////////////////////////////////////////////////////////////////////////////////////// Investigate error
-chrome.tabs.onCreated.addListener(updateOnEvent)
-chrome.tabGroups.onCreated.addListener(updateOnEvent)
-chrome.tabGroups.onMoved.addListener(updateOnEvent)
-chrome.tabGroups.onUpdated.addListener(updateOnEvent)
+chrome.tabs.onCreated.addListener(manageHomeTabs)
+chrome.tabGroups.onCreated.addListener(manageHomeTabs)
+chrome.tabGroups.onMoved.addListener(manageHomeTabs)
+chrome.tabGroups.onUpdated.addListener(manageHomeTabs)
+// chrome.tabs.onCreated.addListener(updateOnEvent)
+// chrome.tabGroups.onCreated.addListener(updateOnEvent)
+// chrome.tabGroups.onMoved.addListener(updateOnEvent)
+// chrome.tabGroups.onUpdated.addListener(updateOnEvent)
 
 // Clear leftover memory and create home tabs
 function init() {
@@ -194,8 +200,11 @@ async function handleIncomingMessages(message, sender) {
           console.error(error)
         }
       })
+    case 'delete':
       deleteTabs(+tabId)
       break
+    case 'wake':
+      chrome.tabs.create({ windowId: windowIdOfSender, url: url })
     case 'delete-sleeping':
       sleeping = await chrome.storage.local.get('sleeping')
       sleeping =
@@ -208,12 +217,8 @@ async function handleIncomingMessages(message, sender) {
         }
       })
       deleteFromMemory(tabId)
-      chrome.tabs.sendMessage(sender.tab.id, 'update', sendMessageCallback) //////////
-      break
-    case 'wake':
-      break
-    case 'delete':
-      deleteTabs(+tabId)
+      chrome.tabs.sendMessage(sender.tab.id, 'update', sendMessageCallback)
+      //// send to all active tabs?
       break
     default:
       console.log('default case')

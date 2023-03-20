@@ -1,6 +1,9 @@
 <script>
   import Delete from '../buttons/Delete.svelte'
   import Sleep from '../buttons/Sleep.svelte'
+  import Wake from '../buttons/Wake.svelte'
+
+  import { selectedFilter } from '../../stores.js'
   import { createEventDispatcher } from 'svelte'
 
   const dispatch = createEventDispatcher()
@@ -26,7 +29,11 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div on:click={handleClick}>
-  <Sleep />
+  {#if $selectedFilter !== 'Sleeping'}
+    <Sleep />
+  {:else}
+    <Wake />
+  {/if}
   <Delete />
 </div>
 

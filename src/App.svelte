@@ -71,12 +71,15 @@
 
   async function loadCurrentWindow(id) {
     let currentWindowBuild = await readWindow(id)
+    if (!currentWindowBuild) return
     currentWindow.set(currentWindowBuild)
   }
 
   async function readWindow(id) {
     // @ts-ignore
     let data = await chrome.storage.local.get(id)
+    // console.log('readWindow', id, data, data[id]) /////////////////////////////////
+    if (!data[id]) return
     data = JSON.parse(data[id])
     let window = await buildWindow(data.tabIDs.slice(1))
     data.groupIDs.forEach((id) => loadGroup(id))
@@ -99,32 +102,11 @@
     group = JSON.parse(group[id])
     groups.update((currentGroups) => ({ ...currentGroups, [id]: group }))
   }
-
-  function handleButton(e) {
-    const window =
-      e.detail.windowIndex === -1
-        ? $currentWindow
-        : $allWindows[e.detail.windowIndex]
-    const tabIndex = e.detail.index
-    const tabId = window[tabIndex].id
-    switch (e.detail.button) {
-      case 'sleep':
-        // @ts-ignore
-        chrome.runtime.sendMessage(
-          `sleep ${tabId} ${e.detail.url} ${e.detail.favIcon} ${e.detail.title}` // No longer need url, favicon, and title?
-        )
-        break
-      case 'delete':
-        // @ts-ignore
-        chrome.runtime.sendMessage(`delete ${tabId}`)
-        break
-    }
-  }
 </script>
 
 <main>
   <Nav {filters} />
-  <Body on:button={handleButton} />
+  <Body />
 </main>
 
 <style>

@@ -74,10 +74,10 @@ async function updateData() {
   }
   try {
     let rawGroups = await chrome.tabGroups.query({})
-    console.log('rawGroups', rawGroups)
+    // console.log('rawGroups', rawGroups)
     parseGroups(rawGroups)
   } catch (err) {
-    console.log(err) ////////////////////////////////////////
+    console.log('Error in Update Data', err)
   }
 }
 
@@ -171,6 +171,7 @@ async function handleIncomingMessages(message, sender) {
     message.split(' ')
   const title = titleSegments.join(' ')
 
+  let sleeping
   switch (messageType) {
     case 'windowID':
       chrome.tabs.sendMessage(
@@ -180,7 +181,7 @@ async function handleIncomingMessages(message, sender) {
       )
       break
     case 'sleep':
-      let sleeping = await chrome.storage.local.get('sleeping')
+      sleeping = await chrome.storage.local.get('sleeping')
       sleeping =
         Object.keys(sleeping).length > 0 ? JSON.parse(sleeping['sleeping']) : []
       chrome.storage.local.set({
@@ -194,6 +195,22 @@ async function handleIncomingMessages(message, sender) {
         }
       })
       deleteTabs(+tabId)
+      break
+    case 'delete-sleeping':
+      sleeping = await chrome.storage.local.get('sleeping')
+      sleeping =
+        Object.keys(sleeping).length > 0 ? JSON.parse(sleeping['sleeping']) : []
+      sleeping = sleeping.filter((id) => id !== +tabId)
+      chrome.storage.local.set({ sleeping: JSON.stringify(sleeping) }, () => {
+        let error = chrome.runtime.lastError
+        if (error) {
+          console.error(error)
+        }
+      })
+      deleteFromMemory(tabId)
+      //////////////////////////// Need to trigger a refresh of the page -> Tell active home tabs to update
+      break
+    case 'wake':
       break
     case 'delete':
       deleteTabs(+tabId)
@@ -344,7 +361,7 @@ function deleteFromMemory(id) {
   })
 }
 
-function sendMessageCallback(res) {
+function sendMessageCallback() {
   const lastError = chrome.runtime.lastError
   if (
     lastError &&
@@ -352,8 +369,6 @@ function sendMessageCallback(res) {
       'The message port closed before a response was received.'
   ) {
     console.log('Error', lastError.message)
-  } else {
-    console.log('res', res)
   }
 }
 

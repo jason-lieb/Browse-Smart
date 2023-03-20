@@ -3,10 +3,13 @@
   import WindowHeader from './WindowHeader.svelte'
   import GroupHeader from '../group/GroupHeader.svelte'
 
-  import { groups, selectedFilter } from '../../stores.js'
-  import { createEventDispatcher } from 'svelte'
-
-  const dispatch = createEventDispatcher()
+  import {
+    currentWindow,
+    allWindows,
+    sleeping,
+    groups,
+    selectedFilter,
+  } from '../../stores.js'
 
   export let window
   export let windowIndex = -1
@@ -39,11 +42,28 @@
     toggleRotate(e)
   }
 
-  function passUpButton(e) {
-    dispatch('button', {
-      ...e.detail,
-      windowIndex,
-    })
+  function handleButton(e) {
+    let window, messageType
+    switch ($selectedFilter) {
+      case 'Current Window':
+        window = $currentWindow
+        break
+      case 'All Windows':
+        window = $allWindows[windowIndex]
+        break
+      case 'Sleeping':
+        window = $sleeping
+        if (e.detail.button === 'delete') messageType = 'delete-sleeping'
+        break
+      default:
+        console.log('default')
+    }
+    messageType = messageType || e.detail.button
+    const tabId = window[e.detail.index].id
+    // @ts-ignore
+    chrome.runtime.sendMessage(
+      `${messageType} ${tabId} ${e.detail.url} ${e.detail.favIcon} ${e.detail.title}`
+    )
   }
 </script>
 
@@ -83,11 +103,11 @@
             {tab}
             {index}
             group={$groups[tab.groupID]}
-            on:button={passUpButton}
+            on:button={handleButton}
           />
           <!-- Create tab that isn't in a group -->
         {:else if tab?.groupID === -1}
-          <Tab {tab} {index} on:button={passUpButton} />
+          <Tab {tab} {index} on:button={handleButton} />
         {/if}
       {/each}
     {/if}

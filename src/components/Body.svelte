@@ -10,10 +10,10 @@
 
 <div class="container-fluid">
   {#if $selectedFilter === 'Current Window'}
-    <Window window={$currentWindow} on:button />
+    <Window window={$currentWindow} />
   {:else if $selectedFilter === 'All'}
     {#each $allWindows as window, windowIndex}
-      <Window {window} {windowIndex} on:button />
+      <Window {window} {windowIndex} />
     {/each}
   {:else if $selectedFilter === 'Sleeping'}
     <Window window={$sleeping} />

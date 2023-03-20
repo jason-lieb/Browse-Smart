@@ -3,21 +3,30 @@
   export let groupID
   export let toggleRotate
 
-  import { createEventDispatcher } from 'svelte';
-  const dispatch = createEventDispatcher();
+  import { groups } from '../../stores.js'
 
   function toggleGroup(e) {
     let div = toggleRotate(e)
-    dispatch('message', { id: div.parentNode.id })
+    groups.update((currentGroups) => {
+      const newGroup = currentGroups[div.parentNode.id]
+      newGroup.collapsedInSvelte = !(
+        newGroup.collapsedInSvelte ?? newGroup.collapsed
+      )
+      return { ...currentGroups, [div.parentNode.id]: newGroup }
+    })
   }
 
-  let accordionColor = `stroke: var(--${group.color})`;
+  let accordionColor = `stroke: var(--${group?.color})`
 </script>
 
 <div class="groupHeader" id={String(groupID)}>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   {#if group.collapsed}
-    <div on:click={toggleGroup} class="rotate accordionGroup" style={accordionColor}>
+    <div
+      on:click={toggleGroup}
+      class="rotate accordionGroup"
+      style={accordionColor}
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -62,6 +71,7 @@
     height: 3rem;
     position: relative;
     top: -1.25rem;
+    max-width: 90%;
   }
 
   .accordionGroup {
@@ -81,13 +91,16 @@
     padding: 0.125rem;
     padding-left: 0.625rem;
     margin-left: 2.5rem;
-    margin-bottom: 0;
+    margin-bottom: 0rem;
     background: hsl(206, 29%, 11%);
     font-size: 1.25rem;
     font-weight: bold;
     font-style: italic;
     color: rgb(26, 179, 230);
     max-width: 20rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
   input::placeholder {
     color: rgb(26, 179, 230);
@@ -95,31 +108,40 @@
   input:focus {
     box-shadow: none;
   }
-  .grey, .grey::placeholder {
+  .grey,
+  .grey::placeholder {
     color: var(--grey);
   }
-  .blue, .blue::placeholder {
+  .blue,
+  .blue::placeholder {
     color: var(--blue);
   }
-  .red, .red::placeholder {
+  .red,
+  .red::placeholder {
     color: var(--red);
   }
-  .yellow, .yellow::placeholder {
+  .yellow,
+  .yellow::placeholder {
     color: var(--yellow);
   }
-  .green, .green::placeholder {
+  .green,
+  .green::placeholder {
     color: var(--green);
   }
-  .pink, .pink::placeholder {
+  .pink,
+  .pink::placeholder {
     color: var(--pink);
   }
-  .purple, .purple::placeholder {
+  .purple,
+  .purple::placeholder {
     color: var(--purple);
   }
-  .cyan, .cyan::placeholder {
+  .cyan,
+  .cyan::placeholder {
     color: var(--cyan);
   }
-  .orange, .orange::placeholder {
+  .orange,
+  .orange::placeholder {
     color: var(--orange);
   }
 </style>

@@ -2,12 +2,9 @@
   import Nav from './components/nav/Nav.svelte'
   import Body from './components/Body.svelte'
 
+  import { currentWindow, allWindows, sleeping, groups } from './stores.js'
+
   let filters = ['Current Window', 'All', 'Sleeping']
-  let windows = {
-    currentWindow: [],
-    allWindows: [],
-  }
-  let groups
   let windowID
 
   // Reload data on home tab visibility change
@@ -15,7 +12,7 @@
     if (!document.hidden) {
       if (windowID) loadCurrentWindow(windowID)
       loadAllWindows()
-      loadAllGroups()
+      loadSleeping()
     }
   })
 
@@ -24,9 +21,9 @@
   // Load initial data and request windowID from background service
   function init() {
     // @ts-ignore
-    chrome.runtime.sendMessage('windowID')
-    loadAllGroups()
+    setTimeout(chrome.runtime.sendMessage, 500, 'windowID')
     loadAllWindows()
+    loadSleeping()
   }
 
   // @ts-ignore // Handle message from background service
@@ -37,7 +34,7 @@
       case 6: // message is 'update'
         if (windowID) loadCurrentWindow(windowID)
         loadAllWindows()
-        loadAllGroups()
+        loadSleeping()
         break
       default: // message is windowID
         if (message === 'windowID') return // Ignore the runtime message
@@ -49,32 +46,40 @@
   async function loadAllWindows() {
     // @ts-ignore
     let windowIDs = await chrome.storage.local.get('windowIDs')
+
     windowIDs = JSON.parse(windowIDs['windowIDs'])
-    let allWindows = []
+    let allWindowsBuild = []
     for (let id of windowIDs) {
       let newWindow = await readWindow(String(id))
-      allWindows.push(newWindow)
+      allWindowsBuild.push(newWindow)
     }
-    windows.allWindows = allWindows
+    allWindows.set(allWindowsBuild)
   }
 
-  async function loadAllGroups() {
+  async function loadSleeping() {
     // @ts-ignore
-    let loadGroups = await chrome.storage.local.get('groups')
-    loadGroups = JSON.parse(loadGroups['groups'])
-    groups = loadGroups
+    let sleepingTabs = await chrome.storage.local.get('sleeping')
+
+    sleepingTabs =
+      Object.keys(sleepingTabs).length > 0
+        ? JSON.parse(sleepingTabs['sleeping'])
+        : []
+    const sleepingBuild = await buildWindow(sleepingTabs)
+    sleeping.set(sleepingBuild)
   }
 
   async function loadCurrentWindow(id) {
-    let buildWindow = await readWindow(id)
-    windows.currentWindow = buildWindow
+    let currentWindowBuild = await readWindow(id)
+    currentWindow.set(currentWindowBuild)
   }
 
   async function readWindow(id) {
     // @ts-ignore
     let data = await chrome.storage.local.get(id)
+
     data = JSON.parse(data[id])
     let window = await buildWindow(data.tabIDs.slice(1))
+    data.groupIDs.forEach((id) => loadGroup(id))
     return window
   }
 
@@ -83,15 +88,43 @@
     for (let id of ids) {
       // @ts-ignore
       let output = await chrome.storage.local.get(String(id))
-      buildWindow.push(JSON.parse(output[id]))
+      buildWindow.push({ ...JSON.parse(output[id]), id })
     }
     return buildWindow
+  }
+
+  async function loadGroup(id) {
+    // @ts-ignore
+    let group = await chrome.storage.local.get(String(id))
+    group = JSON.parse(group[id])
+    groups.update((currentGroups) => ({ ...currentGroups, [id]: group }))
+  }
+
+  function handleButton(e) {
+    const window =
+      e.detail.windowIndex === -1
+        ? $currentWindow
+        : $allWindows[e.detail.windowIndex]
+    const tabIndex = e.detail.index
+    const tabId = window[tabIndex].id
+    switch (e.detail.button) {
+      case 'sleep':
+        // @ts-ignore
+        chrome.runtime.sendMessage(
+          `sleep ${tabId} ${e.detail.url} ${e.detail.favIcon} ${e.detail.title}` // No longer need url, favicon, and title?
+        )
+        break
+      case 'delete':
+        // @ts-ignore
+        chrome.runtime.sendMessage(`delete ${tabId}`)
+        break
+    }
   }
 </script>
 
 <main>
   <Nav {filters} />
-  <Body {windows} {groups} />
+  <Body on:button={handleButton} />
 </main>
 
 <style>

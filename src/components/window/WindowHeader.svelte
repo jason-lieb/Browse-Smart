@@ -1,9 +1,12 @@
 <script>
   export let windowIndex
+  import { selectedFilter } from '../../stores.js'
 </script>
 
 <div>
-  {#if windowIndex === -1}
+  {#if $selectedFilter === 'Sleeping'}
+    <input type="text" placeholder="Sleeping" readonly />
+  {:else if $selectedFilter === 'Current Window'}
     <input type="text" placeholder="Current Window" readonly />
   {:else}
     <input type="text" placeholder="Window {windowIndex + 1}" readonly />
@@ -11,6 +14,9 @@
 </div>
 
 <style>
+  div {
+    max-width: 90%;
+  }
   input {
     border: none;
     padding: 0.125rem;
@@ -23,6 +29,9 @@
     font-style: italic;
     color: rgb(26, 179, 230);
     max-width: 20rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
   input::placeholder {
     color: rgb(26, 179, 230);

@@ -1,7 +1,7 @@
 <script>
 </script>
 
-<button>X</button>
+<button class="delete">X</button>
 
 <style>
   button {

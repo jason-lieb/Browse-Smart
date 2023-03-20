@@ -1,8 +1,14 @@
 ## To Do
 
-Messages from Home Tabs (Sleep / Delete)
+Move runtime messages from App to Original Event
+Messages from Home Tabs (Awake / Delete (Sleeping))
+Errors that prevent home tab from functioning
+
+- Cannot read properties of undefined (reading 'color') when updating on visibility change when selected filter is sleeping
+
 Break background into modules
 Error handling
+When a group is deleted, remove from svelte stores
 
 ## Special Cases
 
@@ -11,30 +17,14 @@ Unpinned home tag
 Pinned other tabs moved in front of home tab
 Error when deleting a tab group or ungrouping the tabs
 
-## Commands
-
-chrome.windows.remove
-chrome.tabs.move
-chrome.tabs.remove
+//////////////////////////////////////////////////////////////////////////////////////
 
 ## Buttons
 
 - send to Notion
 - export
-
-## Data Structure
-
-- windowsIDs
-  list of windows
-- windows
-  stored individually based on windowID
-  contains tabIDs and groupIDs
-- groups
-  stored individually based on groupID -> store as a single object?
-  contains color, title -> add collapsed
-- tabs
-  stored individually based on tabID
-  contains url, favIcon, title, groupID
+- clear all sleeping (chrome.storage.local.clear())
+- Windows Buttons: Delete Window (chrome.windows.remove)
 
 ## Sleeping
 
@@ -79,10 +69,8 @@ What happens if it goes offline?
 
 ## Aesthetics
 
-Get ellipses when text overflows
 Tab Icon for Chrome Settings / Extensions / etc. -> Loop through all tabs and add to ones with url Chrome://
 Different Color for Different Workspaces
-Gap on right side of tab disappears when shrunk
 
 ## Pop-up
 

@@ -1,15 +1,23 @@
+// Data Structures
+// windowIDs: [windowID] // Use a Set when not serializing to JSON
+// "windowID": { groupsIDs: [Int], tabIDs: [Int]}
+// "tabID": { title: String, url: String, favIcon: String, groupID: Int }
+// sleeping: [Int]
+// groups: { "groupID": { title: String, color: String, collapsed: Bool } }
+
 // Global
-let homeTabIDs
-let windowIDs
+let homeTabIDs // Is this still used?
+let windowIDs // Is this still used?
 let manageHomeRunning = false
 let startedManageHomeTabs
 let startedUpdateEvents
 let updateAlreadyQueued
 let manageAlreadyQueued
+let uniqueID = 0
 let _
 
 // Initialization of Extension
-chrome.runtime.onInstalled.addListener(manageHomeTabs)
+chrome.runtime.onInstalled.addListener(init)
 
 // Handle messages from home tabs
 chrome.runtime.onMessage.addListener(handleIncomingMessages)
@@ -19,21 +27,59 @@ chrome.windows.onCreated.addListener(manageHomeTabs)
 chrome.tabs.onDetached.addListener(manageHomeTabs)
 
 // Listen for if home tab is deleted or if home tab is only tab in window
-chrome.tabs.onRemoved.addListener(manageHomeTabs)
+chrome.tabs.onRemoved.addListener((id) => {
+  manageHomeTabs()
+  // Remove deleted tab from Chrome Storage
+  deleteFromMemory(String(id))
+})
 
-// If home tab is unpinned, create new home tab and delete old one? ///////////////////////////////////////
+// If home tab is unpinned, create new home tab and delete old one? ////////////////////////////////////////////////
 chrome.tabs.onUpdated.addListener(updateOnEvent)
 
 // Order of events if other pinned tabs are moved in front of home tab (is onUpdated first?) /////////////////////
 chrome.tabs.onMoved.addListener(updateOnEvent)
 
-// Events that only require updating data
-chrome.windows.onRemoved.addListener(updateOnEvent)
+// Events that don't require home tabs to be modified
+chrome.windows.onRemoved.addListener((id) => {
+  manageHomeTabs()
+  // Remove deleted window from Chrome Storage
+  deleteFromMemory(String(id))
+})
+chrome.tabGroups.onRemoved.addListener((group) => {
+  manageHomeTabs()
+  // Remove deleted tab group from Chrome Storage
+  deleteFromMemory(String(group.id))
+}) //////////////////////////////////////////////////////////////////////////////////////////////// Investigate error
 chrome.tabs.onCreated.addListener(updateOnEvent)
 chrome.tabGroups.onCreated.addListener(updateOnEvent)
 chrome.tabGroups.onMoved.addListener(updateOnEvent)
-chrome.tabGroups.onRemoved.addListener(updateOnEvent) ////////////////////// Investigate error
 chrome.tabGroups.onUpdated.addListener(updateOnEvent)
+
+// Clear leftover memory and create home tabs
+function init() {
+  chrome.storage.local.clear()
+  manageHomeTabs()
+}
+
+// Query windows (including tabs) and groups and save to storage
+async function updateData() {
+  try {
+    let rawWindows = await chrome.windows.getAll({
+      populate: true,
+      windowTypes: ['normal'],
+    })
+    homeTabIDs = parseWindows(rawWindows)
+  } catch (err) {
+    console.error(err)
+  }
+  try {
+    let rawGroups = await chrome.tabGroups.query({})
+    // console.log('rawGroups', rawGroups)
+    parseGroups(rawGroups)
+  } catch (err) {
+    console.error(err)
+  }
+}
 
 // Parse windows query and save windowIDs to storage
 function createWindowIDs(rawData) {
@@ -51,21 +97,7 @@ function createWindowIDs(rawData) {
   windowIDs = Array.from(setWindowIDs)
 }
 
-// Query data and save to storage
-async function updateData() {
-  try {
-    let rawWindows = await chrome.windows.getAll({
-      populate: true,
-      windowTypes: ['normal'],
-    })
-    let rawGroups = await chrome.tabGroups.query({})
-    homeTabIDs = parseWindows(rawWindows)
-    parseGroups(rawGroups)
-  } catch (err) {
-    console.error(err)
-  }
-}
-
+// Parse raw window and tab data and save individually according to window / tab id to Chrome Storage
 function parseWindows(rawWindows) {
   const homeTabIDs = []
   // Loop through all windows
@@ -112,45 +144,60 @@ function parseWindows(rawWindows) {
   return homeTabIDs
 }
 
+// Parse raw group data and save groups to Chrome Storage
 function parseGroups(rawGroups) {
-  const groups = {}
   rawGroups.forEach((group) => {
-    let groupID = group.id
     let groupContent = {
       title: group.title,
       color: group.color,
       collapsed: group.collapsed,
     }
-    groups[groupID] = groupContent
-  })
-  chrome.storage.local.set({ groups: JSON.stringify(groups) }, () => {
-    let error = chrome.runtime.lastError
-    if (error) {
-      console.error(error)
-    }
+    chrome.storage.local.set(
+      { [String(group.id)]: JSON.stringify(groupContent) },
+      () => {
+        let error = chrome.runtime.lastError
+        if (error) {
+          console.error(error)
+        }
+      }
+    )
   })
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function handleIncomingMessages(message, sender) {
-  // console.log('incoming message')
-  // console.log('message', message)
-  // console.log('sender', sender)
+// Handle communication between background service and home tabs
+async function handleIncomingMessages(message, sender) {
   const windowIdOfSender = sender.tab.windowId
-  switch (message) {
+  const [messageType, tabId, url, favIcon, ...titleSegments] =
+    message.split(' ')
+  const title = titleSegments.join(' ')
+
+  switch (messageType) {
     case 'windowID':
-      // console.log('response to incoming message')
-      // console.log('windowIdOfSender', windowIdOfSender)
       chrome.tabs.sendMessage(sender.tab.id, String(windowIdOfSender))
+      break
+    case 'sleep':
+      let sleeping = await chrome.storage.local.get('sleeping')
+      sleeping =
+        Object.keys(sleeping).length > 0 ? JSON.parse(sleeping['sleeping']) : []
+      chrome.storage.local.set({
+        [String(uniqueID)]: JSON.stringify({ title, url, favIcon }),
+      })
+      sleeping.push(uniqueID++)
+      chrome.storage.local.set({ sleeping: JSON.stringify(sleeping) }, () => {
+        let error = chrome.runtime.lastError
+        if (error) {
+          console.error(error)
+        }
+      })
+      deleteTabs(+tabId)
+      break
+    case 'delete':
+      deleteTabs(+tabId)
       break
     default:
       console.log('default case')
   }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Function to update stored data on chrome events
 async function updateOnEvent() {
@@ -164,7 +211,6 @@ async function updateOnEvent() {
   }
   startedUpdateEvents = Date.now()
   updateAlreadyQueued = false
-  // console.log('run update') //////////////////////////////////////////
 
   // Update data and message active home tabs, so they know to update
   _ = await updateData()
@@ -175,22 +221,22 @@ async function updateOnEvent() {
   })
 }
 
-// Function to delete out of place home tabs and create home tabs at index 0
+// Create home tabs at index 0 and delete out of place home tabs
 async function manageHomeTabs() {
   // Block update function from running
   manageHomeRunning = true
 
   // Only run function if it hasn't been ran for 500 ms
   if (Date.now() - startedManageHomeTabs < 500) {
+    // Queue up manageHomeTabs to run after current instance is finished
     if (!manageAlreadyQueued) {
-      setTimeout(manageHomeTabs, 1000)
+      setTimeout(manageHomeTabs, 500)
       manageAlreadyQueued = true
     }
     return
-  } // || updateEventsRunning
+  }
   startedManageHomeTabs = Date.now()
   manageAlreadyQueued = false
-  // console.log('run manage') //////////////////////////////////////////
 
   // Query all windows with their tabs included
   const allWindows = await chrome.windows.getAll({
@@ -208,10 +254,12 @@ async function manageHomeTabs() {
   // Add home tabs to windows without home tab in position 0
   _ = await addHomeTabs(allWindows)
 
+  // Unblock update from running and run update
   manageHomeRunning = false
   updateOnEvent()
 }
 
+// Create list of home tabs not in index 0 or in their own window
 function findHomeTabsToDelete(allWindows) {
   const tabsToDelete = []
   allWindows.forEach((window) => {
@@ -226,32 +274,33 @@ function findHomeTabsToDelete(allWindows) {
       tabsToDelete.push(window.tabs[0].id)
     }
   })
-  // console.log('all tabs to delete', tabsToDelete) ///////////////////
   return tabsToDelete
 }
 
+// Delete all out of place home tabs
 async function deleteHomeTabs(tabsToDelete) {
   // Loop to try to delete home tabs until it is successful
+  // Home tabs can't be created while a tab is being dragged
   let deletedSuccessfully = false
   do {
     try {
       _ = await deleteTabs(tabsToDelete)
-      // console.log('deleted Successfully') ///////////////////
       deletedSuccessfully = true
     } catch (err) {
       _ = await wait()
-      // console.log('test wait delete') ///////////////////
     }
   } while (!deletedSuccessfully)
-  // console.log('end of delete Home Tabs') ///////////////////
 }
 
+// Close tab and remove from Chrome Storage
 async function deleteTabs(tabsToDelete) {
   _ = await chrome.tabs.remove(tabsToDelete)
 }
 
+// Create home tabs for all windows
 async function addHomeTabs(allWindows) {
   // Loop to try to add home tabs until it is successful
+  // Home tabs can't be created while a tab is being dragged
   let tabCreationSuccessful = false
   do {
     try {
@@ -263,11 +312,11 @@ async function addHomeTabs(allWindows) {
       tabCreationSuccessful = true
     } catch (err) {
       let _ = await wait()
-      // console.log('test wait create')
     }
   } while (!tabCreationSuccessful)
 }
 
+// Create new home tab
 async function createHomeTab(windowID) {
   _ = await chrome.tabs.create({
     windowId: windowID,
@@ -278,6 +327,25 @@ async function createHomeTab(windowID) {
   })
 }
 
+// Half second delay
 function wait() {
   return new Promise((resolve) => setTimeout(resolve, 500))
 }
+
+// Remove deleted tabs, tab groups, and windows from Chrome Storage
+function deleteFromMemory(id) {
+  chrome.storage.local.remove(id, () => {
+    const err = chrome.runtime.lastError
+    if (err) console.error(err)
+  })
+}
+
+//
+//
+//
+//
+//
+//
+// chrome.windows.onRemoved.addListener((e) => console.log('window removed', e)) // window id
+// chrome.tabs.onRemoved.addListener((e) => console.log('tab deleted', e)) // tab id
+// chrome.tabGroups.onRemoved.addListener((e) => console.log('group removed', e)) // {id}

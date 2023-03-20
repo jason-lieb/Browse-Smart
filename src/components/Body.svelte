@@ -1,17 +1,22 @@
 <script>
   import Window from './window/Window.svelte'
-  import { selectedFilter } from '../stores.js'
-  export let windows
-  export let groups
+  import {
+    currentWindow,
+    allWindows,
+    sleeping,
+    selectedFilter,
+  } from '../stores.js'
 </script>
 
 <div class="container-fluid">
   {#if $selectedFilter === 'Current Window'}
-    <Window window={windows.currentWindow} {groups} />
+    <Window window={$currentWindow} on:button />
   {:else if $selectedFilter === 'All'}
-    {#each windows.allWindows as window, windowIndex}
-      <Window {window} {windowIndex} {groups} />
+    {#each $allWindows as window, windowIndex}
+      <Window {window} {windowIndex} on:button />
     {/each}
+  {:else if $selectedFilter === 'Sleeping'}
+    <Window window={$sleeping} />
   {/if}
   <div class="padding" />
 </div>

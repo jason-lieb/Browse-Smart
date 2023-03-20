@@ -3,13 +3,15 @@
   import WindowHeader from './WindowHeader.svelte'
   import GroupHeader from '../group/GroupHeader.svelte'
 
-  import { selectedFilter } from '../../stores.js'
+  import { groups, selectedFilter } from '../../stores.js'
+  import { createEventDispatcher } from 'svelte'
+
+  const dispatch = createEventDispatcher()
 
   export let window
   export let windowIndex = -1
-  export let groups
 
-  let collapsed = false
+  let windowCollapsed = false
 
   function toggleRotate(e) {
     let div
@@ -33,22 +35,22 @@
   }
 
   function toggleWindow(e) {
-    collapsed = collapsed === true ? false : true
+    windowCollapsed = windowCollapsed === true ? false : true
     toggleRotate(e)
   }
 
-  function handleMessage(e) {
-    groups[e.detail.id].collapsedInSvelte =
-      groups[e.detail.id].collapsedInSvelte ?? groups[e.detail.id].collapsed
-        ? false
-        : true
+  function passUpButton(e) {
+    dispatch('button', {
+      ...e.detail,
+      windowIndex,
+    })
   }
 </script>
 
 <div class="main">
   <div class="window container">
     <!-- svelte-ignore a11y-click-events-have-key-events -->
-    {#if $selectedFilter !== 'Current Window'}
+    {#if $selectedFilter !== 'Current Window' && $selectedFilter !== 'Sleeping'}
       <div on:click={toggleWindow} class="rotate accordion">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -65,20 +67,27 @@
       <div />
     {/if}
     <WindowHeader {windowIndex} />
-    {#if !collapsed}
+    {#if !windowCollapsed}
       {#each window as tab, index}
+        <!-- Create group header if the current tab is in a group and the previous tab wasn't in the same group -->
         {#if tab?.groupID !== -1 && window[index - 1]?.groupID !== tab?.groupID}
           <GroupHeader
-            group={groups[tab.groupID]}
+            group={$groups[tab.groupID]}
             groupID={tab.groupID}
             {toggleRotate}
-            on:message={handleMessage}
           />
         {/if}
-        {#if tab?.groupID !== -1 && !(groups[tab?.groupID].collapsedInSvelte ?? groups[tab?.groupID].collapsed)}
-          <Tab {tab} group={groups[tab.groupID]} />
+        <!-- Create tab if the tab is in a group and that group is not collapsed -->
+        {#if tab?.groupID !== -1 && !($groups[tab?.groupID]?.collapsedInSvelte ?? $groups[tab?.groupID]?.collapsed)}
+          <Tab
+            {tab}
+            {index}
+            group={$groups[tab.groupID]}
+            on:button={passUpButton}
+          />
+          <!-- Create tab that isn't in a group -->
         {:else if tab?.groupID === -1}
-          <Tab {tab} />
+          <Tab {tab} {index} on:button={passUpButton} />
         {/if}
       {/each}
     {/if}

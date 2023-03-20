@@ -1,14 +1,25 @@
 <script>
   import TabButtonGroup from './TabButtonGroup.svelte'
+  import { createEventDispatcher } from 'svelte'
+
   export let tab
+  export let index
   export let group = { color: 'background' }
 
-  function handleClick(e) {
-    console.log(e)
+  const dispatch = createEventDispatcher()
+
+  function addTabInfo(e) {
+    dispatch('button', {
+      ...e.detail,
+      favIcon: tab.favIcon,
+      title: tab.title,
+      url: tab.url,
+      index: index,
+    })
   }
 </script>
 
-<div class="group {group.color}" />
+<div class="group {group?.color}" />
 <div class="flex">
   <div class="tab">
     {#if tab.favIcon}
@@ -21,7 +32,7 @@
       <p>{tab.url}</p>
     </div>
   </div>
-  <TabButtonGroup />
+  <TabButtonGroup on:button={addTabInfo} />
 </div>
 
 <style>
@@ -30,6 +41,7 @@
     width: 0.25rem;
   }
   .flex {
+    max-width: calc(100vw - 20rem);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -43,10 +55,8 @@
     align-items: center;
   }
   .stackedText {
-    max-width: calc(100vw - 25rem);
+    max-width: calc(100vw - 32rem);
     flex-shrink: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
   img,
   .blank {
@@ -57,15 +67,17 @@
   h6 {
     margin-top: 0.25rem;
     margin-bottom: 0;
-    /* text-overflow: ellipsis; */
+    text-overflow: ellipsis;
     white-space: nowrap;
+    overflow: hidden;
     font-size: 112.5%;
   }
   p {
     margin-bottom: 0.25rem;
     white-space: nowrap;
     font-size: 100%;
-    /* text-overflow: ellipsis; */
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .background {
     background: hsl(206, 29%, 11%);

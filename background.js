@@ -208,7 +208,7 @@ async function handleIncomingMessages(message, sender) {
         }
       })
       deleteFromMemory(tabId)
-      //////////////////////////// Need to trigger a refresh of the page -> Tell active home tabs to update
+      chrome.tabs.sendMessage(sender.tab.id, 'update', sendMessageCallback)
       break
     case 'wake':
       break

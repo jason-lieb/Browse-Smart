@@ -197,12 +197,10 @@ async function handleIncomingMessages(message, sender) {
       deleteTabs(+tabId)
       break
     case 'delete-sleeping':
-      console.log('delete-sleeping tab id', tabId)
       sleeping = await chrome.storage.local.get('sleeping')
       sleeping =
         Object.keys(sleeping).length > 0 ? JSON.parse(sleeping['sleeping']) : []
       sleeping = sleeping.filter((id) => id !== +tabId)
-      console.log('sleeping', sleeping)
       chrome.storage.local.set({ sleeping: JSON.stringify(sleeping) }, () => {
         let error = chrome.runtime.lastError
         if (error) {
@@ -210,9 +208,7 @@ async function handleIncomingMessages(message, sender) {
         }
       })
       deleteFromMemory(tabId)
-      chrome.storage.local.get(tabId, (data) =>
-        console.log('should error', data)
-      )
+      chrome.tabs.sendMessage(sender.tab.id, 'update', sendMessageCallback) //////////
       break
     case 'wake':
       break

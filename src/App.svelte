@@ -7,21 +7,25 @@
   let filters = ['Current Window', 'All', 'Sleeping']
   let windowID
 
-  // Reload data on home tab visibility change
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      if (windowID) loadCurrentWindow(windowID)
-      loadAllWindows()
-      loadSleeping()
-    }
-  })
-
   init()
 
   // Load initial data and request windowID from background service
   function init() {
     // @ts-ignore
     setTimeout(chrome.runtime.sendMessage, 500, 'windowID')
+    loadAllWindows()
+    loadSleeping()
+  }
+
+  // Reload data on home tab visibility change
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      setTimeout(reload, 500)
+    }
+  })
+
+  function reload() {
+    if (windowID) loadCurrentWindow(windowID)
     loadAllWindows()
     loadSleeping()
   }
@@ -45,6 +49,8 @@
         loadCurrentWindow(message)
     }
   }
+
+  //////////////////////////////// Move Data Functions to Different File
 
   async function loadAllWindows() {
     // @ts-ignore

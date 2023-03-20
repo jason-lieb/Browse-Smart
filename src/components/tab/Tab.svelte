@@ -1,6 +1,7 @@
 <script>
   import TabButtonGroup from './TabButtonGroup.svelte'
   import { createEventDispatcher } from 'svelte'
+  // import { fade } from 'svelte/transition'
 
   export let tab
   export let index
@@ -20,6 +21,7 @@
 </script>
 
 <div class="group {group?.color}" />
+<!-- out:fade -->
 <div class="flex">
   <div class="tab">
     {#if tab.favIcon}

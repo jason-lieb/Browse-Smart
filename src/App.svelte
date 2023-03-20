@@ -84,7 +84,6 @@
   async function readWindow(id) {
     // @ts-ignore
     let data = await chrome.storage.local.get(id)
-    // console.log('readWindow', id, data, data[id]) /////////////////////////////////
     if (!data[id]) return
     data = JSON.parse(data[id])
     let window = await buildWindow(data.tabIDs.slice(1))
@@ -105,8 +104,10 @@
   async function loadGroup(id) {
     // @ts-ignore
     let group = await chrome.storage.local.get(String(id))
-    group = JSON.parse(group[id])
-    groups.update((currentGroups) => ({ ...currentGroups, [id]: group }))
+    if (Object.keys(group).length > 0) {
+      group = JSON.parse(group[id])
+      groups.update((currentGroups) => ({ ...currentGroups, [id]: group }))
+    }
   }
 </script>
 

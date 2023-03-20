@@ -17,11 +17,12 @@
   }
 
   let accordionColor = `stroke: var(--${group?.color})`
+  let groupClass = group ? 'groupHeader' : 'groupError'
 </script>
 
-<div class="groupHeader" id={String(groupID)}>
+<div class={groupClass} id={String(groupID)}>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  {#if group.collapsed}
+  {#if group?.collapsed}
     <div
       on:click={toggleGroup}
       class="rotate accordionGroup"
@@ -38,7 +39,7 @@
         stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg
       >
     </div>
-  {:else}
+  {:else if group}
     <div on:click={toggleGroup} class="accordionGroup" style={accordionColor}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -52,7 +53,14 @@
       >
     </div>
   {/if}
-  <input type="text" placeholder={group.title} class={group.color} readonly />
+  {#if group}
+    <input
+      type="text"
+      placeholder={group?.title ?? 'Group'}
+      class={group?.color}
+      readonly
+    />
+  {/if}
 </div>
 
 <style>
@@ -72,6 +80,10 @@
     position: relative;
     top: -1.25rem;
     max-width: 90%;
+  }
+
+  .groupError {
+    grid-column: span 2;
   }
 
   .accordionGroup {

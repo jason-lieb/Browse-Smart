@@ -1,13 +1,8 @@
 ## To Do
 
-Move runtime messages from App to Original Event
-Messages from Home Tabs (Awake / Delete (Sleeping))
-
 Break background into modules
 Error handling
 When a group is deleted, remove from svelte stores
-
-Sporadic tab groups not supported
 
 ## Special Cases
 
